@@ -296,8 +296,18 @@ class GridBuilding(ActBuilding):
         future_position = None
 
         if is_depot:
+            # if a building exists in the offset 3x3 building offset location we cannot build in middle of ramp
             for point in self.building_solver.buildings2x2:
-                if not buildings.closer_than(1, point):
+                # if point == Point2((108,37)):
+                #     print("have problem here")
+                #     print(f"Distance from proper barracks ramp point: {point.distance_to_point2(self.ai.zone_manager.expansion_zones[0].ramp.ramp.barracks_correct_placement)}") 
+                #     print(f"Distance from improper barracks ramp point: {point.distance_to_point2(self.ai.zone_manager.expansion_zones[0].ramp.ramp.barracks_in_middle)}") 
+                if point.distance_to_point2(self.ai.zone_manager.expansion_zones[0].ramp.ramp.barracks_in_middle) < 1:
+                    continue
+                
+                if not buildings.closer_than(2, point):
+                    # for building in buildings:
+                    #     print(f"Building: {building}, distance from new point: {point.distance_to(building)}")
                     return point
         else:
             pylons = self.cache.own(UnitTypeId.PYLON).not_ready
@@ -344,6 +354,7 @@ class GridBuilding(ActBuilding):
     async def build_terran(self, worker: Unit, count, position: Point2):
         # try the selected position first
         # TODO: Remake the error handling with frame delay
+        print(f"Build({self.unit_type}): Proposed location: {position}")
         worker.build(self.unit_type, position)
 
     def is_on_creep(self, creep: PixelMap, point: Point2) -> bool:
