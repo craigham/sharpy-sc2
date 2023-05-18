@@ -298,18 +298,30 @@ class GridBuilding(ActBuilding):
         if is_depot:
             # if a building exists in the offset 3x3 building offset location we cannot build in middle of ramp
             for point in self.building_solver.buildings2x2:
-                # if point == Point2((108,37)):
-                #     print("have problem here")
-                #     print(f"Distance from proper barracks ramp point: {point.distance_to_point2(self.ai.zone_manager.expansion_zones[0].ramp.ramp.barracks_correct_placement)}") 
-                #     print(f"Distance from improper barracks ramp point: {point.distance_to_point2(self.ai.zone_manager.expansion_zones[0].ramp.ramp.barracks_in_middle)}") 
                 if point.distance_to_point2(self.ai.zone_manager.expansion_zones[0].ramp.ramp.barracks_in_middle) < 1:
                     continue
                 
                 if not buildings.closer_than(2, point):
-                    # for building in buildings:
-                    #     print(f"Building: {building}, distance from new point: {point.distance_to(building)}")
                     return point
-        else:
+        elif self.unit_type == UnitTypeId.COMMANDCENTER:
+            pylons = self.cache.own(UnitTypeId.PYLON).not_ready
+            reserved_landing_locations: Set[Point2] = set(self.building_solver.structure_target_move_location.values())
+            for point in self.building_solver.buildings5x5:
+                if not self.allow_wall:
+                    if point in self.building_solver.wall3x3:
+                        continue
+                # If a structure is landing here from AddonSwap() then dont use this location
+                if point in reserved_landing_locations:
+                    continue
+                # If this location has a techlab or reactor next to it, then don't create a new structure here
+                if point in self.building_solver.free_addon_locations:
+                    continue
+                if not buildings.closer_than(2, point):
+                    return point
+
+                if future_position is None and pylons and point.distance_to_closest(pylons) <= 7:
+                    future_position = point
+        else: 
             pylons = self.cache.own(UnitTypeId.PYLON).not_ready
             reserved_landing_locations: Set[Point2] = set(self.building_solver.structure_target_move_location.values())
             for point in self.building_solver.buildings3x3:
@@ -327,7 +339,6 @@ class GridBuilding(ActBuilding):
 
                 if future_position is None and pylons and point.distance_to_closest(pylons) <= 7:
                     future_position = point
-
         return future_position
 
     def get_iterator(self, is_pylon, count):
