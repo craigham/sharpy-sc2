@@ -105,7 +105,7 @@ class Zone:
             self.danger_radius += Zone.MAIN_ZONE_RADIUS_INCREASE
 
         if self.ramp is not None:
-            self.gather_point = self.ramp.top_center.towards(self.center_location, 4)
+            self.gather_point = self.ramp.top_center.towards(self.center_location, -1)
 
     @property
     def is_island(self) -> bool:

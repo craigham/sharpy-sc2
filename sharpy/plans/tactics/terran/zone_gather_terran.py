@@ -35,15 +35,15 @@ class PlanZoneGatherTerran(ActBase):
             self.gather_set.clear()
             self.gather_point = self.gather_point_solver.gather_point
             main_ramp = self.zone_manager.own_main_zone.ramp
-            if main_ramp and main_ramp.bottom_center.distance_to(self.gather_point) < 5:
+            if main_ramp and main_ramp.top_center.distance_to(self.gather_point) < 5:
                 # Nudge gather point just a slightly further
-                self.gather_point = self.gather_point.towards(main_ramp.bottom_center, -3)
+                self.gather_point = main_ramp.top_center
 
         unit: Unit
         for unit in self.cache.own([UnitTypeId.BARRACKS, UnitTypeId.FACTORY]).tags_not_in(self.gather_set):
             # Rally point is set to prevent units from spawning on the wrong side of wall in
             pos: Point2 = unit.position
-            pos = pos.towards(self.gather_point_solver.gather_point, 3)
+            pos = pos.towards(self.gather_point, 1)
             unit(AbilityId.RALLY_BUILDING, pos)
             self.gather_set.append(unit.tag)
 

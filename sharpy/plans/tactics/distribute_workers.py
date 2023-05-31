@@ -62,7 +62,6 @@ class DistributeWorkers(ActBase):
         self.roles = knowledge.roles
 
     async def execute(self) -> bool:
-        print("Distributing workers")
         self.gas_workers_target = self.calc_gas_workers_target()
         self.gas_workers_max = len(self.safe_active_gas_buildings) * 3
         self.worker_dict.clear()

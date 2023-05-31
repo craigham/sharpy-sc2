@@ -1,6 +1,6 @@
 from sc2.position import Point2
 from sc2.units import Units
-from sharpy.combat import MicroStep, Action
+from sharpy.combat import MicroStep, Action, MoveType
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.unit import Unit
 
@@ -16,8 +16,9 @@ class MicroMedivacs(MicroStep):
         # if self.engage_ratio < 0.25 and self.can_engage_ratio < 0.25:
         #     return current_command
         #
-        # if self.move_type in {MoveType.PanicRetreat, MoveType.DefensiveRetreat}:
-        #     return current_command
+        if self.move_type in {MoveType.PanicRetreat, MoveType.DefensiveRetreat}:
+            self.print(f"Should pickup attackes and evacuate!!")
+            # return current_command
 
         if unit.energy < 5 and self.enemies_near_by:
             return self.stay_safe(unit)

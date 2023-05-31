@@ -4,7 +4,7 @@ from typing import Optional, Set
 from sc2.data import Race
 from sc2.ids.ability_id import AbilityId
 from sc2.pixel_map import PixelMap
-from sharpy.sc2math import to_new_ticks
+from sharpy.sc2math import to_new_ticks, spiral
 
 from sharpy.managers.core.roles import UnitTask
 from sharpy.utils import map_to_point2s_center
@@ -18,7 +18,10 @@ from sharpy.managers.core import PathingManager
 
 worker_trainers = {AbilityId.NEXUSTRAIN_PROBE, AbilityId.COMMANDCENTERTRAIN_SCV}
 
-
+terran_addons = {UnitTypeId.BARRACKSTECHLAB, UnitTypeId.BARRACKSREACTOR,
+                UnitTypeId.STARPORTTECHLAB, UnitTypeId.STARPORTREACTOR,
+                UnitTypeId.FACTORYTECHLAB, UnitTypeId.FACTORYREACTOR}
+buildings_w_addons = {UnitTypeId.BARRACKS, UnitTypeId.FACTORY, UnitTypeId.STARPORT}
 class WorkerStuckStatus:
     def __init__(self):
         self.tag_stuck: Optional[int] = None
@@ -121,7 +124,7 @@ class GridBuilding(ActBuilding):
         if self.knowledge.my_race == Race.Protoss:
             position = self.position_protoss(count)
         elif self.knowledge.my_race == Race.Terran:
-            position = self.position_terran(count)
+            position = await self.position_terran(count)
         else:
             position = self.position_zerg(count)
 
@@ -290,7 +293,7 @@ class GridBuilding(ActBuilding):
 
         return future_position
 
-    def position_terran(self, count) -> Optional[Point2]:
+    async def position_terran(self, count) -> Optional[Point2]:
         is_depot = self.unit_type == UnitTypeId.SUPPLYDEPOT
         buildings = self.ai.structures
         future_position = None
@@ -334,6 +337,18 @@ class GridBuilding(ActBuilding):
                 # If this location has a techlab or reactor next to it, then don't create a new structure here
                 if point in self.building_solver.free_addon_locations:
                     continue
+                # if a barracks, factory, starport check is room exists for its addon
+                if self.unit_type in buildings_w_addons:
+                    add_on_center: Point2 = point.offset((2.5, -0.5))
+                    if not await self.ai.can_place_single(UnitTypeId.SUPPLYDEPOT, add_on_center):
+                        continue
+                    # make sure the addon for the structure placed here wouldnt block an empty spot beside an existing unattached addon
+                    # find nearby addons
+                    # for addon in self.ai.structures(terran_addons):
+                    #     if addon.add_on_land_position.distance_to(add_on_center) < 2:
+                    if len([b for b in buildings(terran_addons) if b.add_on_land_position.distance_to(point) < 3] ):
+                            continue
+
                 if not buildings.closer_than(1, point):
                     return point
 

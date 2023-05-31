@@ -47,6 +47,7 @@ class PathingManager(ManagerBase):
         self.path_finder_terrain = sc2pathlib.PathFinder(_data)
         self.path_finder_terrain.normalize_influence(20)
 
+
     @property
     def overlord_spots(self) -> List[Point2]:
         points = []
@@ -274,7 +275,7 @@ class PathingManager(ManagerBase):
     def find_influence_air_path(self, start: Point2, target: Point2) -> Point2:
         result = self.map.find_path_influence(MapType.Air, start, target)
         path = result[0]
-        target_index = 4
+        target_index = 20
 
         if len(path) < 1:
             self.print(f"No path found {start}, {target}")
@@ -335,3 +336,5 @@ class PathingManager(ManagerBase):
             end_point = normal_vector * distance + target
 
         return end_point
+
+    
