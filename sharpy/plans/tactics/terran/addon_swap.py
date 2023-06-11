@@ -267,7 +267,7 @@ class PlanAddonSwap(ActBase):
                 # If this location has a techlab or reactor next to it, then don't create a new structure here
             if point in self.building_solver.free_addon_locations:
                 continue
-            if buildings.closer_than(1, point):
+            if buildings.closer_than(3.5, point):
                 continue
             dist = unit.distance_to(point)
             if dist < current_distance:
@@ -394,4 +394,38 @@ class ExecuteAddonSwap(ActBase):
         # Structure is close to land location but flying, order land command
         elif unit.is_flying and land_location.distance_to(unit) < 2 and not unit.is_using_ability(AbilityId.LAND):
             # TODO If land location is blocked, attempt to find another land location instead
+            if not self.ai.structures.closer_than(3,land_location):
+                new_land_location = self.position_terran(unit)
+                self.print(f"Something blocking landing location for {unit}, finding new land location")
+                self.building_solver.structure_target_move_location[unit.tag] = new_land_location
+                self.print(f"Old land location: {land_location}, new land location: {new_land_location}")
+                land_location = new_land_location
+                
             unit(AbilityId.LAND, land_location)
+
+    def position_terran(self, unit: Unit) -> Optional[Point2]:
+        """
+        Copied and modified from grid_building.py
+        Finds the closest landing location to dettach from addons.
+        """
+        buildings = self.ai.structures
+
+        current_location: Optional[Point2] = None
+        current_distance = math.inf
+
+        reserved_landing_locations: Set[Point2] = set(self.building_solver.structure_target_move_location.values())
+
+        for point in self.building_solver.buildings3x3:
+            # If a structure is landing here from AddonSwap() then dont use this location
+            if point in reserved_landing_locations:
+                continue
+                # If this location has a techlab or reactor next to it, then don't create a new structure here
+            if point in self.building_solver.free_addon_locations:
+                continue
+            if buildings.closer_than(3.5, point):
+                continue
+            dist = unit.distance_to(point)
+            if dist < current_distance:
+                current_location = point
+                current_distance = dist
+        return current_location
