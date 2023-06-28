@@ -54,6 +54,7 @@ class PlanZoneDefense(ActBase):
 
             # Let's loop zone starting from our main, which is the one we want to defend the most
             # Check that zone is either in our control or is our start location that has no Nexus
+            # TODO, added the or clause, but not sure it makes sense
             if zone_defenders.exists or zone.is_ours or zone == self.zone_manager.own_main_zone or zone == self.zone_manager.expansion_zones[1]:
                 if not self.defense_required(enemies):
                     # Delay before removing defenses in case we just lost visibility of the enemies
