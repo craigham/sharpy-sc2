@@ -16,8 +16,6 @@ class MicroMedivacs(MicroStep):
         # if self.engage_ratio < 0.25 and self.can_engage_ratio < 0.25:
         #     return current_command
         #
-        if self.move_type in {MoveType.PanicRetreat, MoveType.DefensiveRetreat}:
-            self.print(f"Should pickup attackes and evacuate!!")
             # return current_command
 
         if unit.energy < 5 and self.enemies_near_by:

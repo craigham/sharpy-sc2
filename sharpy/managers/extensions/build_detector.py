@@ -85,6 +85,7 @@ class BuildDetector(ManagerBase):
         await super().start(knowledge)
 
         self.enemy_units_manager = knowledge.get_required_manager(IEnemyUnitsManager)
+        self.distance_main_map_center = self.zone_manager.own_main_zone.center_location.distance_to(self.ai.game_info.map_center)
 
     @property
     def rush_detected(self):
@@ -197,7 +198,7 @@ class BuildDetector(ManagerBase):
             else:
                 self._set_rush(EnemyRushBuild.Macro)
                 return  # enemy has build expansion, no rush detection
-
+        
         close_buildings = self.cache.enemy_in_range(self.ai.start_location, 80).structure
         if close_buildings:
             if close_buildings(UnitTypeId.ROBOTICSFACILITY):
@@ -208,7 +209,7 @@ class BuildDetector(ManagerBase):
             # early game and we have seen enemy Nexus
             close_gateways = (
                 self.ai.enemy_structures(UnitTypeId.GATEWAY)
-                .closer_than(30, self.zone_manager.enemy_main_zone.center_location)
+                .closer_than(self.distance_main_map_center, self.zone_manager.own_main_zone.center_location)
                 .amount
             )
             core = self.ai.enemy_structures(UnitTypeId.CYBERNETICSCORE).exists
@@ -217,7 +218,8 @@ class BuildDetector(ManagerBase):
             robos = self.cache.enemy(UnitTypeId.ROBOTICSFACILITY).amount
             gas = self.cache.enemy(UnitTypeId.ASSIMILATOR).amount
 
-            if self.ai.time > 110 and close_gateways == 0 and not core and only_nexus_seen:
+            if self.ai.time > 110 and close_gateways == 0 and not core and only_nexus_seen \
+                or close_gateways > 1:
                 self._set_rush(EnemyRushBuild.ProxyZealots)
 
             if gates > 2:

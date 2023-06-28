@@ -275,7 +275,7 @@ class PathingManager(ManagerBase):
     def find_influence_air_path(self, start: Point2, target: Point2) -> Point2:
         result = self.map.find_path_influence(MapType.Air, start, target)
         path = result[0]
-        target_index = 20
+        target_index = 4
 
         if len(path) < 1:
             self.print(f"No path found {start}, {target}")

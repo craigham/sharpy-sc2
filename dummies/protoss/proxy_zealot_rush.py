@@ -86,8 +86,8 @@ class ProxyZealots(ActBase):
                     continue
 
                 self.solver.massive_grid(pos)
-        if self.knowledge.debug:
-            self.solver.grid.save("proxy.bmp")
+        # if self.knowledge.debug:
+        #     self.solver.grid.save("proxy.bmp")
         self.gather_point = self.pather.find_path(self.proxy_location, self.zone_manager.enemy_start_location, 8)
         self.solver.buildings2x2.sort(key=lambda x: self.proxy_location.distance_to(x))
         self.solver.buildings3x3.sort(key=lambda x: self.proxy_location.distance_to(x))
