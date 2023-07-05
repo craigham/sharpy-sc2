@@ -179,7 +179,7 @@ class BuildGrid(Grid):
             x += 1
 
     def save(self, filename: string):
-        if self.knowledge.debug:
+        if self.knowledge.debug and False:
             self.save_image(filename, self.select_color)
 
     def select_color(self, cell: GridArea) -> Color:

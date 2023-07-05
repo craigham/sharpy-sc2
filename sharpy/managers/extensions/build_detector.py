@@ -20,6 +20,9 @@ townhall_start_types = {
     UnitTypeId.COMMANDCENTER,
 }
 
+workers_types = {UnitTypeId.SCV, UnitTypeId.PROBE, UnitTypeId.DRONE}
+
+
 
 class EnemyRushBuild(enum.IntEnum):
     Macro = 0
@@ -38,6 +41,7 @@ class EnemyRushBuild(enum.IntEnum):
     RoboRush = 13
     AdeptRush = 14
     WorkerRush = 15
+    Proxy_Unknown = 16
 
 
 class EnemyMacroBuild(enum.IntEnum):
@@ -96,6 +100,7 @@ class BuildDetector(ManagerBase):
         return self.rush_build == EnemyRushBuild.WorkerRush
 
     async def update(self):
+        self._detect_proxy()
         self._update_timings()
         self._rush_detection()
         self._build_detection()
@@ -218,9 +223,9 @@ class BuildDetector(ManagerBase):
             robos = self.cache.enemy(UnitTypeId.ROBOTICSFACILITY).amount
             gas = self.cache.enemy(UnitTypeId.ASSIMILATOR).amount
 
-            if self.ai.time > 110 and close_gateways == 0 and not core and only_nexus_seen \
-                or close_gateways > 1:
-                self._set_rush(EnemyRushBuild.ProxyZealots)
+            # if self.ai.time > 110 and close_gateways == 0 and not core and only_nexus_seen \
+            #     or close_gateways > 1:
+            #     self._set_rush(EnemyRushBuild.ProxyZealots)
 
             if gates > 2:
                 if gas == 1:
@@ -350,6 +355,22 @@ class BuildDetector(ManagerBase):
 
         if self.macro_build != EnemyMacroBuild.StandardMacro:
             self.print(f"Enemy normal build recognized as {self.macro_build.name}")
+    
+    def _detect_proxy(self):
+        if self.macro_build != EnemyMacroBuild.StandardMacro:
+            # Only set macro build once
+            return
+        
+        # workers: Units = self.cache.enemy_workers.closer_than(20,self.zone_manager.enemy_main_zone.center_location)
+        # if workers:
+        #     pass
+        #     self.print(f"# workers in enemy base: {workers.amount}")
+        #     print(f"# workers in enemy base: {workers.amount}")
+        
+
+        # start by counting workers seen outside the main.
+        # also when we have seen the main, should have a number of expected workers
+        pass
 
     def building_started_before(self, type_id: UnitTypeId, start_time_ceiling: int) -> bool:
         """Returns true if a building of type type_id has been started before start_time_ceiling seconds."""

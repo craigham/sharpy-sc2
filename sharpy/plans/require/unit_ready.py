@@ -21,6 +21,5 @@ class UnitReady(RequireBase):
             build_progress = max(build_progress, unit.build_progress)
 
         count += build_progress
-        if self.unit_type == UnitTypeId.ORBITALCOMMAND:
-            print(f"{self.unit_type} build progress: {build_progress}")
+
         return count >= self.count

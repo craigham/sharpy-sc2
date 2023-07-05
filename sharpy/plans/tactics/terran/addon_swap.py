@@ -424,6 +424,12 @@ class ExecuteAddonSwap(ActBase):
                 continue
             if buildings.closer_than(3.5, point):
                 continue
+            # make sure room for an addon too
+            add_on_center: Point2 = point.offset(Point2((2.5, -0.5)))
+            if buildings.closer_than(3.5, add_on_center):
+                print("Disqualifying because no room for add on")
+                continue
+
             dist = unit.distance_to(point)
             if dist < current_distance:
                 current_location = point
