@@ -9,7 +9,7 @@ from sc2.units import Units
 class MicroReaper(GenericMicro):
     def __init__(self):
         super().__init__()
-        self.run_percentage = 0.15
+        self.run_percentage = 0.25
         self.grenade_available = 0
 
     def group_solve_combat(self, units: Units, current_command: Action) -> Action:
@@ -55,5 +55,5 @@ class MicroReaper(GenericMicro):
 
     def stay_safe(self, unit: Unit, current_command: Action) -> Action:
         """Partial retreat, micro back."""
-        pos = self.pather.find_weak_influence_ground(unit.position, 6)
+        pos = self.pather.find_weak_influence_ground(unit.position, 8)
         return Action(pos, False)

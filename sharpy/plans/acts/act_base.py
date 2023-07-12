@@ -242,8 +242,17 @@ class ActBase(Component, ABC):
                 return 10
 
             workers.sort(key=sort_method)
-
-            worker = workers.first
+            not_far_worker = None
+            for a_worker in workers:
+                if a_worker.distance_to(position) < 50:
+                    not_far_worker = a_worker
+                    break
+                else:
+                    print(f"Skipped worker because to far away.  Dist: {a_worker.distance_to(position)}")
+            if not_far_worker:    
+                worker = not_far_worker
+            else:
+                worker = workers.first
 
         return worker
 
