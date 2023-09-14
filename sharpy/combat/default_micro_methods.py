@@ -214,7 +214,9 @@ class DefaultMicroMethods:
 
         best_target: Optional[Unit] = None
         best_score: float = 0
+        print("-=-=-=- New focus fire -=-=-=-=-=")
         for enemy in enemies:  # type: Unit
+            # print(f"Scoring for enemy: {enemy}")
             if enemy.type_id in ignored_types:
                 continue
 
@@ -228,18 +230,21 @@ class DefaultMicroMethods:
                 continue
 
             pos: Point2 = enemy.position
+            # print(f"Value func: {value_func(enemy)}")
             score = value_func(enemy) + (1 - pos.distance_to(unit) / lookup)
+            # print(f"Score is: {score}")
             if enemy.tag == last_target:
                 score += 3
-
+            # print(f"Score after last target adjustment: {score}")
             if step.focus_fired.get(enemy.tag, 0) > enemy.health:
                 score *= 0.1
-
+            print(f"Enemy: {enemy.type_id}-({enemy.tag}-> Score: {score}-Distance: {enemy.position.distance_to(unit)})")
             if score > best_score:
                 best_target = enemy
                 best_score = score
 
         if best_target:
+            print(f"Firing at: {best_target}")
             step.focus_fired[best_target.tag] = (
                 step.focus_fired.get(best_target.tag, 0) + unit.calculate_damage_vs_target(best_target)[0]
             )

@@ -227,6 +227,7 @@ class PathingManager(ManagerBase):
             # TODO: Plot Air
             self.map.plot_ground_map(self.found_points)
             # self.path_finder_air.plot(self.found_points_air, "air_map")
+            self.map.plot_vision()
             for spot in self.overlord_spots:
                 point = Point2(spot)
                 z = self.knowledge.get_z(point)

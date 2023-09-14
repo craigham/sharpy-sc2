@@ -16,7 +16,6 @@ class MicroReaper(GenericMicro):
         return super().group_solve_combat(units, current_command)
 
     def unit_solve_combat(self, unit: Unit, current_command: Action) -> Action:
-
         # avoid stepping on grenades
         for effect in self.ai.state.effects:
             if effect.id != "KD8CHARGE":
@@ -57,3 +56,5 @@ class MicroReaper(GenericMicro):
         """Partial retreat, micro back."""
         pos = self.pather.find_weak_influence_ground(unit.position, 8)
         return Action(pos, False)
+
+    
