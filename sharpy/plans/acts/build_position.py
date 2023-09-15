@@ -6,7 +6,7 @@ from sc2.ids.unit_typeid import UnitTypeId
 from sc2.position import Point2
 from sc2.unit import Unit
 
-
+depot_aliases = {UnitTypeId.SUPPLYDEPOT, UnitTypeId.SUPPLYDEPOTLOWERED, UnitTypeId.SUPPLYDEPOTDROP}
 class BuildPosition(ActBase):
     def __init__(self, unit_type: UnitTypeId, position: Point2, exact: bool = True, only_once: bool = False):
         super().__init__()
@@ -19,8 +19,10 @@ class BuildPosition(ActBase):
     async def execute(self) -> bool:
         if self.position is None:
             return True
-
-        for building in self.cache.own(self.unit_type):  # type: Unit
+        unit_type = self.unit_type
+        if unit_type == UnitTypeId.SUPPLYDEPOT:
+            unit_type = depot_aliases
+        for building in self.cache.own(unit_type):  # type: Unit
             if building.distance_to(self.position) < 2:
                 if self.only_once:
                     self.position = None

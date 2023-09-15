@@ -55,6 +55,7 @@ class BuildAddon(ActBase):
                     self.tried_to_build_dict[builder.tag] = self.ai.time
                     self.print(f"{self.unit_type} to {center}")
                     builder.build(self.unit_type)
+                    break
                 else:
                     self.print("no space")
         return False

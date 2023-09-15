@@ -2,7 +2,9 @@ from collections import deque
 from typing import Dict, Set, Deque, List, Optional
 
 from sc2.data import Race
+from sc2.ids.effect_id import EffectId
 from sc2.position import Point2
+
 from sharpy.events import UnitDestroyedEvent
 from sharpy.interfaces import IMemoryManager
 from sharpy.managers.core import ManagerBase
@@ -116,13 +118,15 @@ class MemoryManager(ManagerBase, IMemoryManager):
             if expired:
                 self.clear_unit_cache(memory_tags_to_remove, unit_tag)
             elif visible:
+                
                 # We see that the unit is no longer there.
                 if (snap.type_id in BURROWED_ALIAS or snap.is_burrowed) and unit_tag not in self._tags_destroyed:
+                    snap_scanned = self.is_snap_being_scanned(snap.position)
                     if detectors is None:
                         detectors = self.cache.own(self.detectors)
-
-                    if detectors.closer_than(11, snap.position):
-                        self.clear_unit_cache(memory_tags_to_remove, unit_tag)
+                        # check effects to see if we have scan close enough
+                    if detectors.closer_than(11, snap.position) or snap_scanned:
+                        self.clear_unit_cache(memory_tags_to_remove, unit_tag)                    
                     else:
                         # For burrowed units, let's change the snapshot
                         snap._proto.is_burrowed = True
@@ -140,6 +144,14 @@ class MemoryManager(ManagerBase, IMemoryManager):
         # Merge enemy data with memories
         self.ai.enemy_units = self.ai.enemy_units + memory_units
         self.ai.all_enemy_units = self.ai.all_enemy_units + memory_units
+
+    def is_snap_being_scanned(self, position:Point2):        
+        my_effects = list(self.ai.state.effects)
+        for current_effect in my_effects:
+            if current_effect.id == EffectId.SCANNERSWEEP and position.distance_to((list(current_effect.positions)[0]))  < 13:
+                return True
+        return False
+
 
     def clear_unit_cache(self, memory_tags_to_remove, unit_tag):
         memory_tags_to_remove.append(unit_tag)
