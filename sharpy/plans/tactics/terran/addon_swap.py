@@ -267,7 +267,7 @@ class PlanAddonSwap(ActBase):
                 # If this location has a techlab or reactor next to it, then don't create a new structure here
             if point in self.building_solver.free_addon_locations:
                 continue
-            if buildings.closer_than(3.5, point):
+            if buildings.closer_than(3.5, point) or buildings.closer_than(2, point.offset((2,-1))):
                 continue
             dist = unit.distance_to(point)
             if dist < current_distance:
