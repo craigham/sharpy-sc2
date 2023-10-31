@@ -26,7 +26,8 @@ class MoveType(enum.IntEnum):
     Harass = 5
     # Attempt to regroup with other units.
     ReGroup = 6
-
+    # kill as fast as possible
+    Kamikaze = 7
 
 retreat_move_types = {MoveType.DefensiveRetreat, MoveType.PanicRetreat}
 retreat_or_push_move_types = retreat_move_types | {MoveType.Push}

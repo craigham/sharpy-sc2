@@ -185,10 +185,10 @@ Builds:
         file_name = f"{player2}_{map_name}_{time}_{randomizer}"
         path = f"{folder}/{file_name}.log"
 
-        if self.config.getboolean("general", "log_file"):
-            LoggingUtility.set_logger_file(log_level=self.config["general"]["log_level"], path=path)
-        else:
-            LoggingUtility.set_logger(log_level=self.config["general"]["log_level"])
+        # if self.config.getboolean("general", "log_file"):
+        #     LoggingUtility.set_logger_file(log_level=self.config["general"]["log_level"], path=path)
+        # else:
+        #     LoggingUtility.set_logger(log_level=self.config["general"]["log_level"])
 
         GameStarter.setup_bot(player1_bot, player1, player2, args)
         GameStarter.setup_bot(player2_bot, player2, player1, args)
