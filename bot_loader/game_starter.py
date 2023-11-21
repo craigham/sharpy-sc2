@@ -223,6 +223,6 @@ Builds:
             my_bot: KnowledgeBot = player.ai
             my_bot.opponent_id = bot_code + "-" + enemy_text
             my_bot.run_custom = True
-            my_bot.raw_affects_selection = args.raw_selection
+            my_bot.raw_affects_selection = True
             if args.release:
                 my_bot.config = get_config(False)

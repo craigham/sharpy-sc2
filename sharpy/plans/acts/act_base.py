@@ -197,10 +197,32 @@ class ActBase(Component, ABC):
         @return: Worker if one was found
         """
 
+        def is_constructing(worker):
+            ### the build order lasts a little longer than actual build of a structure.
+            for order in worker.orders:
+                if order.ability.link_name == 'TerranBuild':
+                    if isinstance(order.target, Point2):
+                        structs = self.ai.structures.closer_than(1, order.target)
+                        if structs:
+                            return not structs[0].build_progress == 1                    
+                        else:
+                            return True
+                    else:
+                        resource = self.ai.resources.find_by_tag(order.target)
+                        if resource:
+                            structs = self.ai.structures.closer_than(1, resource.position)
+                            if structs:
+                                return not structs[0].build_progress == 1
+                            else:
+                                return True
+                        else:
+                            return True
+            return False
+        
         worker: Optional[Unit] = None
         if priority_tag is not None:
             worker: Unit = self.cache.by_tag(priority_tag)
-            if worker is None or worker.is_constructing_scv or self.roles.unit_role(worker) != UnitTask.Building:
+            if worker is None or is_constructing(worker) or self.roles.unit_role(worker) != UnitTask.Building:
                 # Worker is probably dead or it is already building something else.
                 worker = None
 
@@ -212,9 +234,11 @@ class ActBase(Component, ABC):
             # Worker is probably taken by some other act or it is already building something else.
             worker = None
 
+        
+        
         if worker is None:
             workers = self.ai.workers.filter(
-                lambda w: not w.has_buff(BuffId.ORACLESTASISTRAPTARGET) and not w.is_constructing_scv
+                lambda w: not w.has_buff(BuffId.ORACLESTASISTRAPTARGET) and not is_constructing(w)
             ).sorted_by_distance_to(position)
             if not workers:
                 return None
@@ -224,7 +248,7 @@ class ActBase(Component, ABC):
                 # if self.knowledge.my_race == Race.Protoss and role == UnitTask.Building:
                 #     return 0
 
-                if role == UnitTask.Idle:
+                if role == UnitTask.Idle or (len(unit.orders) > 0 and unit.orders[0].ability.link_name == 'TerranBuild'):
                     return 1
 
                 if role == UnitTask.Gathering:

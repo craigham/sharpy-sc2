@@ -29,7 +29,7 @@ class MicroReaper(GenericMicro):
         grenade_target: Optional[Unit] = None
         enemy: Unit
 
-        for enemy in self.enemies_near_by:
+        for enemy in self.enemies_near_by:            
             d = enemy.distance_to(unit)
             if d < 6:
                 grenade_score = self.cache.enemy_in_range(enemy.position, 3).not_structure.not_flying.amount
