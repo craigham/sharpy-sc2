@@ -1,3 +1,4 @@
 [submodule "python-sc2"]
 	path = python-sc2
 	url = https://github.com/craigham/python-sc2.git
+	branch = develop
