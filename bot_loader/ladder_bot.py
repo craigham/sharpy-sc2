@@ -40,6 +40,19 @@ class BotLadder(AbstractPlayer):
                 "DotNetCore": [f"{bot_name}.dll", "dotnet"],
                 "Java": [f"{bot_name}.jar", "java"],
             }
+        elif platform.system() == "Darwin":
+            bot_type_map = {
+                "python": ["run.py", "/Users/craigh/dev/starcraft/tbone/.venv/bin/python"],
+                "cppwin32": [f"{bot_name}.exe", "Wine"],
+                "cpplinux": [f"{bot_name}", None],
+                "dotnetcore": [f"{bot_name}.dll", "dotnet"],
+                "java": [f"{bot_name}.jar", "java"],
+                "Python": ["run.py", "/Users/craigh/dev/starcraft/tbone/.venv/bin/python"],
+                "Wine": [f"{bot_name}.exe", None],
+                "BinaryCpp": [f"{bot_name}.exe", None],
+                "DotNetCore": [f"{bot_name}.dll", "dotnet"],
+                "Java": [f"{bot_name}.jar", "java"],
+            }
         else:
             # Windows
             bot_type_map = {
