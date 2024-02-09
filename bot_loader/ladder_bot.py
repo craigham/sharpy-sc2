@@ -47,7 +47,7 @@ class BotLadder(AbstractPlayer):
                 "cpplinux": [f"{bot_name}", None],
                 "dotnetcore": [f"{bot_name}.dll", "dotnet"],
                 "java": [f"{bot_name}.jar", "java"],
-                "Python": ["run.py", "/Users/craigh/dev/starcraft/tbone/.venv/bin/python"],
+                "Python-craig": ["run.py", "/Users/craigh/dev/starcraft/tbone/.venv/bin/python3"],
                 "Wine": [f"{bot_name}.exe", None],
                 "BinaryCpp": [f"{bot_name}.exe", None],
                 "DotNetCore": [f"{bot_name}.dll", "dotnet"],
