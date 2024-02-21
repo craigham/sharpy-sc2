@@ -270,9 +270,7 @@ class ActBase(Component, ABC):
             for a_worker in workers:
                 if a_worker.distance_to(position) < 50:
                     not_far_worker = a_worker
-                    break
-                else:
-                    print(f"Skipped worker because to far away.  Dist: {a_worker.distance_to(position)}")
+                    break                
             if not_far_worker:    
                 worker = not_far_worker
             else:

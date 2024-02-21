@@ -13,6 +13,9 @@ class IncomeCalculator(ManagerBase, IIncomeCalculator):
         self._gas_income = 0
         self.use_ingame = False
 
+        self.last_mineral_use_amount = 0
+        self.last_mineral_use_sample_time = 0
+        self.last_rate = 0
     @property
     def mineral_income(self):
         return self._mineral_income
@@ -22,6 +25,16 @@ class IncomeCalculator(ManagerBase, IIncomeCalculator):
         return self._gas_income
 
     async def update(self):
+        if self.ai.time -2 > self.last_mineral_use_sample_time:
+            last_timed_rate = (self.ai.state.score.collected_minerals - self.last_mineral_use_amount)/(self.ai.time - self.last_mineral_use_sample_time)
+            smoothed_rate = (last_timed_rate + self.last_rate)/2
+            self.last_mineral_use_amount = self.ai.state.score.collected_minerals
+            self.last_mineral_use_sample_time = self.ai.time
+            self.last_rate = smoothed_rate
+
+        # print(f"Game state mineral collection rate: {self.ai.state.score.collection_rate_minerals / 60}")
+        
+        # print(f"Collected minerals: {self.ai.state.score.collected_minerals}")
         if self.use_ingame:
             self._mineral_income = self.ai.state.score.collection_rate_minerals / 60
             self._gas_income = self.ai.state.score.collection_rate_vespene / 60
@@ -32,14 +45,14 @@ class IncomeCalculator(ManagerBase, IIncomeCalculator):
         # TODO: Calculate enemy income and minerals harvested here
 
     def mineral_rate_calc(self) -> float:
-        rate = 0
-        nexus: Unit
-        for nexus in self.ai.townhalls:
-            rate += min(nexus.assigned_harvesters, nexus.ideal_harvesters)
-            rate += max(nexus.assigned_harvesters - nexus.ideal_harvesters, 0) * 0.5  # half power mining?
+        # rate = 0
+        # nexus: Unit
+        # for nexus in self.ai.townhalls:
+        #     rate += min(nexus.assigned_harvesters, nexus.ideal_harvesters)
+        #     rate += max(nexus.assigned_harvesters - nexus.ideal_harvesters, 0) * 0.5  # half power mining?
         # With two workers per mineral patch, a large node with 1800 minerals will exhaust after 15 minutes
         # multiplier = 1800.0 / 60 / 15 / 2 => 1
-        return rate
+        return self.last_rate
 
     def vespene_rate_calc(self) -> float:
         rate = 0

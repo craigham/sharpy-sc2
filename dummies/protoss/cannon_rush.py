@@ -44,16 +44,20 @@ class ProxyCannoneer(ActBase):
 
         self.pylons: List[Point2] = [
             self.natural,
-            self.enemy_ramp.bottom_center.towards(self.between, 2).towards(self.natural, 1),
+            self.enemy_ramp.bottom_center.towards(
+                self.between, 2).towards(self.natural, 1),
             self.enemy_ramp.top_center.towards(self.enemy_main, 4),
         ]
 
         if knowledge.enemy_race != Race.Zerg:
             self.pylons.append(self.between.towards(self.enemy_main, 6))
-            self.pylons.append(self.enemy_ramp.top_center.towards(self.enemy_main, 8))
-            self.pylons.append(self.enemy_main.towards(self.enemy_ramp.top_center, 4))
+            self.pylons.append(
+                self.enemy_ramp.top_center.towards(self.enemy_main, 8))
+            self.pylons.append(self.enemy_main.towards(
+                self.enemy_ramp.top_center, 4))
         else:
-            self.pylons.append(self.enemy_main.towards(self.enemy_ramp.top_center, 10))
+            self.pylons.append(self.enemy_main.towards(
+                self.enemy_ramp.top_center, 10))
 
     async def execute(self) -> bool:
         worker = self.get_worker()
@@ -86,11 +90,13 @@ class ProxyCannoneer(ActBase):
                     await self.build(UnitTypeId.PHOTONCANNON, target, max_distance=5, build_worker=worker)
             else:
                 position = self.pather.find_weak_influence_ground(target, 4)
-                target = self.pather.find_influence_ground_path(worker.position, position)
+                target = self.pather.find_influence_ground_path(
+                    worker.position, position)
                 worker.move(target)
         else:
             position = self.pather.find_weak_influence_ground(target, 15)
-            target = self.pather.find_influence_ground_path(worker.position, position)
+            target = self.pather.find_influence_ground_path(
+                worker.position, position)
             worker.move(target)
 
     async def micro_pylon_worker(self, worker):
@@ -103,8 +109,10 @@ class ProxyCannoneer(ActBase):
 
         if target_index >= len(self.pylons):
             # Pylons are done
-            position = self.pather.find_weak_influence_ground(worker.position, 15)
-            target = self.pather.find_influence_ground_path(worker.position, position)
+            position = self.pather.find_weak_influence_ground(
+                worker.position, 15)
+            target = self.pather.find_influence_ground_path(
+                worker.position, position)
             worker.move(target)
             return
 
@@ -116,18 +124,21 @@ class ProxyCannoneer(ActBase):
             worker.move(target)
         elif cannon_index + 1 < target_index:
             position = self.pather.find_weak_influence_ground(mid_target, 10)
-            target = self.pather.find_influence_ground_path(worker.position, position)
+            target = self.pather.find_influence_ground_path(
+                worker.position, position)
             worker.move(target)
         elif self.knowledge.can_afford(UnitTypeId.PYLON):
             if distance < 5:
                 await self.build(UnitTypeId.PYLON, target, max_distance=4, build_worker=worker, placement_step=1)
             else:
                 position = self.pather.find_weak_influence_ground(target, 4)
-                target = self.pather.find_influence_ground_path(worker.position, position)
+                target = self.pather.find_influence_ground_path(
+                    worker.position, position)
                 worker.move(target)
         else:
             position = self.pather.find_weak_influence_ground(mid_target, 10)
-            target = self.pather.find_influence_ground_path(worker.position, position)
+            target = self.pather.find_influence_ground_path(
+                worker.position, position)
             worker.move(target)
 
     def get_index(self):
@@ -169,7 +180,8 @@ class ProxyCannoneer(ActBase):
         if not available_workers:
             return None
 
-        worker = available_workers.closest_to(self.zone_manager.enemy_start_location)
+        worker = available_workers.closest_to(
+            self.zone_manager.enemy_start_location)
         self.proxy_worker_tag = worker.tag
         return worker
 
@@ -184,7 +196,8 @@ class ProxyCannoneer(ActBase):
         if not available_workers:
             return None
 
-        worker = available_workers.closest_to(self.zone_manager.enemy_start_location)
+        worker = available_workers.closest_to(
+            self.zone_manager.enemy_start_location)
         self.proxy_worker_tag2 = worker.tag
         return worker
 
@@ -206,7 +219,8 @@ class CannonRush(KnowledgeBot):
 
         self.building_solver.wall_type = WallType.NoWall
         rush_killed = RequireCustom(
-            lambda k: self.lost_units_manager.own_lost_type(UnitTypeId.PROBE) >= 3 or self.time > 4 * 60
+            lambda k: self.lost_units_manager.own_lost_type(
+                UnitTypeId.PROBE) >= 3 or self.time > 4 * 60
         )
 
         if rnd == 2:
@@ -232,7 +246,8 @@ class CannonRush(KnowledgeBot):
                     [
                         Expand(2),
                         ProtossUnit(UnitTypeId.PROBE, 30),
-                        Step(UnitExists(UnitTypeId.NEXUS, 2), ActUnit(UnitTypeId.PROBE, UnitTypeId.NEXUS, 44)),
+                        Step(UnitExists(UnitTypeId.NEXUS, 2), ActUnit(
+                            UnitTypeId.PROBE, UnitTypeId.NEXUS, 44)),
                     ],
                     GridBuilding(UnitTypeId.GATEWAY, 2),
                     GridBuilding(UnitTypeId.CYBERNETICSCORE, 1),
@@ -242,16 +257,20 @@ class CannonRush(KnowledgeBot):
                     StepBuildGas(3, skip=Gas(300)),
                     Tech(UpgradeId.WARPGATERESEARCH),
                     BuildOrder([]).forge_upgrades_all,
-                    Step(UnitReady(UnitTypeId.TWILIGHTCOUNCIL, 1), Tech(UpgradeId.BLINKTECH)),
+                    Step(UnitReady(UnitTypeId.TWILIGHTCOUNCIL, 1),
+                         Tech(UpgradeId.BLINKTECH)),
                     [
                         ProtossUnit(UnitTypeId.PROBE, 22),
-                        Step(UnitExists(UnitTypeId.NEXUS, 2), ActUnit(UnitTypeId.PROBE, UnitTypeId.NEXUS, 44)),
+                        Step(UnitExists(UnitTypeId.NEXUS, 2), ActUnit(
+                            UnitTypeId.PROBE, UnitTypeId.NEXUS, 44)),
                         StepBuildGas(3, skip=Gas(300)),
                     ],
                     [ProtossUnit(UnitTypeId.STALKER, 100)],
                     [
-                        Step(UnitReady(UnitTypeId.CYBERNETICSCORE, 1), GridBuilding(UnitTypeId.TWILIGHTCOUNCIL, 1),),
-                        Step(UnitReady(UnitTypeId.CYBERNETICSCORE, 1), GridBuilding(UnitTypeId.GATEWAY, 7)),
+                        Step(UnitReady(UnitTypeId.CYBERNETICSCORE, 1),
+                             GridBuilding(UnitTypeId.TWILIGHTCOUNCIL, 1),),
+                        Step(UnitReady(UnitTypeId.CYBERNETICSCORE, 1),
+                             GridBuilding(UnitTypeId.GATEWAY, 7)),
                         StepBuildGas(4, skip=Gas(200)),
                     ],
                 ),
@@ -284,34 +303,40 @@ class CannonRush(KnowledgeBot):
                         ActUnitOnce(UnitTypeId.PROBE, UnitTypeId.NEXUS, 18),
                     ],
                     [
-                        BuildPosition(UnitTypeId.PYLON, natural.center_location),
+                        BuildPosition(UnitTypeId.PYLON,
+                                      natural.center_location),
                         BuildPosition(
                             UnitTypeId.PHOTONCANNON,
-                            natural.center_location.towards(enemy_ramp.bottom_center, 5),
+                            natural.center_location.towards(
+                                enemy_ramp.bottom_center, 5),
                             exact=False,
                             only_once=True,
                         ),
                         BuildPosition(
                             UnitTypeId.PYLON,
-                            natural.center_location.towards(enemy_ramp.bottom_center, 8),
+                            natural.center_location.towards(
+                                enemy_ramp.bottom_center, 8),
                             exact=False,
                             only_once=True,
                         ),
                         BuildPosition(
                             UnitTypeId.PHOTONCANNON,
-                            natural.center_location.towards(enemy_ramp.top_center, 13),
+                            natural.center_location.towards(
+                                enemy_ramp.top_center, 13),
                             exact=False,
                             only_once=True,
                         ),
                         BuildPosition(
                             UnitTypeId.PYLON,
-                            natural.center_location.towards(enemy_ramp.bottom_center, 16),
+                            natural.center_location.towards(
+                                enemy_ramp.bottom_center, 16),
                             exact=False,
                             only_once=True,
                         ),
                         BuildPosition(
                             UnitTypeId.PHOTONCANNON,
-                            natural.center_location.towards(enemy_ramp.top_center, 20),
+                            natural.center_location.towards(
+                                enemy_ramp.top_center, 20),
                             exact=False,
                             only_once=True,
                         ),
@@ -322,31 +347,36 @@ class CannonRush(KnowledgeBot):
                         ),
                         BuildPosition(
                             UnitTypeId.PHOTONCANNON,
-                            natural.center_location.towards(enemy_main.behind_mineral_position_center, 5),
+                            natural.center_location.towards(
+                                enemy_main.behind_mineral_position_center, 5),
                             exact=False,
                             only_once=True,
                         ),
                         BuildPosition(
                             UnitTypeId.PYLON,
-                            natural.center_location.towards(enemy_main.behind_mineral_position_center, 8),
+                            natural.center_location.towards(
+                                enemy_main.behind_mineral_position_center, 8),
                             exact=False,
                             only_once=True,
                         ),
                         BuildPosition(
                             UnitTypeId.PHOTONCANNON,
-                            natural.center_location.towards(enemy_main.behind_mineral_position_center, 12),
+                            natural.center_location.towards(
+                                enemy_main.behind_mineral_position_center, 12),
                             exact=False,
                             only_once=True,
                         ),
                         BuildPosition(
                             UnitTypeId.PYLON,
-                            natural.center_location.towards(enemy_main.behind_mineral_position_center, 16),
+                            natural.center_location.towards(
+                                enemy_main.behind_mineral_position_center, 16),
                             exact=False,
                             only_once=True,
                         ),
                         BuildPosition(
                             UnitTypeId.PHOTONCANNON,
-                            natural.center_location.towards(enemy_main.behind_mineral_position_center, 20),
+                            natural.center_location.towards(
+                                enemy_main.behind_mineral_position_center, 20),
                             exact=False,
                             only_once=True,
                         ),
@@ -362,13 +392,15 @@ class CannonRush(KnowledgeBot):
         self.knowledge.print(f"Cannon rush", "Build")
         return BuildOrder(
             [
-                [GridBuilding(UnitTypeId.PYLON, 1), GridBuilding(UnitTypeId.FORGE, 1, priority=True)],
+                [GridBuilding(UnitTypeId.PYLON, 1), GridBuilding(
+                    UnitTypeId.FORGE, 1, priority=True)],
                 ProxyCannoneer(),
                 ProtossUnit(UnitTypeId.PROBE, 18),
                 ChronoUnit(UnitTypeId.PROBE, UnitTypeId.NEXUS),
                 [
                     Step(Minerals(400), GridBuilding(UnitTypeId.GATEWAY, 1)),
-                    Step(Minerals(700), Expand(2), skip=UnitExists(UnitTypeId.NEXUS, 2)),
+                    Step(Minerals(700), Expand(2),
+                         skip=UnitExists(UnitTypeId.NEXUS, 2)),
                     GridBuilding(UnitTypeId.CYBERNETICSCORE, 1),
                 ],
             ]
@@ -387,7 +419,8 @@ class CannonRush(KnowledgeBot):
                     ActUnit(UnitTypeId.PROBE, UnitTypeId.NEXUS, 18),
                 ],
                 [
-                    BuildPosition(UnitTypeId.PYLON, pylon_pos, exact=False, only_once=True),
+                    BuildPosition(UnitTypeId.PYLON, pylon_pos,
+                                  exact=False, only_once=True),
                     Step(
                         None,
                         BuildPosition(
@@ -396,7 +429,8 @@ class CannonRush(KnowledgeBot):
                             exact=False,
                             only_once=True,
                         ),
-                        skip=RequireCustom(lambda k: k.lost_units_manager.own_lost_type(UnitTypeId.PYLON) > 0),
+                        skip=RequireCustom(
+                            lambda k: k.lost_units_manager.own_lost_type(UnitTypeId.PYLON) > 0),
                     ),
                     Expand(2),
                     GridBuilding(UnitTypeId.GATEWAY, 1),
