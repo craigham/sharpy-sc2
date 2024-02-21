@@ -31,12 +31,12 @@ class IncomeCalculator(ManagerBase, IIncomeCalculator):
             self.last_mineral_use_amount = self.ai.state.score.collected_minerals
             self.last_mineral_use_sample_time = self.ai.time
             self.last_rate = smoothed_rate
-
+        
         # print(f"Game state mineral collection rate: {self.ai.state.score.collection_rate_minerals / 60}")
         
         # print(f"Collected minerals: {self.ai.state.score.collected_minerals}")
-        if self.use_ingame:
-            self._mineral_income = self.ai.state.score.collection_rate_minerals / 60
+        if self.use_ingame:            
+            self._mineral_income = self.ai.state.score.collection_rate_minerals/ 60            
             self._gas_income = self.ai.state.score.collection_rate_vespene / 60
         else:
             self._mineral_income = self.mineral_rate_calc()
@@ -52,7 +52,14 @@ class IncomeCalculator(ManagerBase, IIncomeCalculator):
         #     rate += max(nexus.assigned_harvesters - nexus.ideal_harvesters, 0) * 0.5  # half power mining?
         # With two workers per mineral patch, a large node with 1800 minerals will exhaust after 15 minutes
         # multiplier = 1800.0 / 60 / 15 / 2 => 1
-        return self.last_rate
+        
+        if self.ai.time < 30:
+            factor = 1.5
+        elif self.ai.time > 60:
+            factor = 1.25
+        else:
+            factor = 1
+        return self.last_rate * factor
 
     def vespene_rate_calc(self) -> float:
         rate = 0
