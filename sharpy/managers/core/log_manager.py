@@ -1,13 +1,16 @@
 import logging
 import string
+import sys
 from configparser import ConfigParser
 from typing import Any, Optional
 
-from sc2.main import logger
+from loguru import logger
+
+from sc2.main import logger as sc2_logger
 from sharpy.interfaces import ILogManager
 from .manager_base import ManagerBase
 
-root_logger = logging.getLogger()
+
 
 
 class LogManager(ManagerBase, ILogManager):
@@ -20,6 +23,7 @@ class LogManager(ManagerBase, ILogManager):
         self.start_with = None
 
     async def start(self, knowledge: "Knowledge"):
+        self.setup_loguru(knowledge)
         await super().start(knowledge)
         self.logger = logger
         self.config = knowledge.config
@@ -57,11 +61,30 @@ class LogManager(ManagerBase, ILogManager):
             last_step_time = round(self.ai.step_time[3])
 
             message = (
-                f"{self.ai.time_formatted.rjust(5)} {str(last_step_time).rjust(4)}ms "
-                f"{str(self.ai.minerals).rjust(4)}M {str(self.ai.vespene).rjust(4)}G "
-                f"{str(self.ai.supply_used).rjust(3)}/{str(self.ai.supply_cap).rjust(3)}U {message}"
+                # f"{self.ai.time_formatted.rjust(5)} {str(last_step_time).rjust(4)}ms "
+                # f"{str(self.ai.minerals).rjust(4)}M {str(self.ai.vespene).rjust(4)}G "
+                f"{message}"
             )
 
         if self.start_with:
             message = self.start_with + message
         self.logger.log(log_level, message)
+
+    def setup_loguru(self, knowledge):
+        def formatter(record):
+            last_step_time = 5
+            message = (f"{knowledge.ai.time_formatted.rjust(5)} {str(last_step_time).rjust(4)}ms  ",
+                       f"{str(knowledge.ai.minerals).rjust(4)}M {str(knowledge.ai.vespene).rjust(4)}G ",
+                       f"{str(knowledge.ai.supply_used).rjust(3)}/{str(knowledge.ai.supply_cap).rjust(3)}U ",
+                       f"{record['name']}:{record['line']} {record['message']}\n")
+            return "".join(message)
+        
+        # fmt = "{self.ai.time_formatted.rjust(5)} {str(last_step_time).rjust(4)}ms  {name} - {message}"
+        filtering = {
+            "": "INFO",  # Default.
+            "module1": "INFO",
+            "module2": "INFO",
+            "module2.testing": "DEBUG",
+        }
+        logger.remove()
+        logger.add(sys.stderr, level="DEBUG", format=formatter, filter=filtering)
