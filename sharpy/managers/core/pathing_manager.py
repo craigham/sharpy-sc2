@@ -84,8 +84,8 @@ class PathingManager(ManagerBase):
                 grid.create_block(rock.position, (6, 2))
             elif rock_type in breakable_rocks_2x6:
                 grid.create_block(rock.position, (2, 6))
-            elif rock_type in breakable_rocks_11x2:
-                grid.create_block(rock.position, (11, 2))
+            elif rock_type in breakable_rocks_12x2:
+                grid.create_block(rock.position, (12, 2))
                 
             elif rock_type in breakable_rocks_diag_BLUR:
                 for y in range(-4, 6):
