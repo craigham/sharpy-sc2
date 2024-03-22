@@ -152,7 +152,7 @@ class GameAnalyzer(ManagerBase, IGameAnalyzer):
 
     async def post_update(self):
         if self.debug:
-            msg = f"Our income: {self.income_calculator.mineral_income} / {round(self.income_calculator.gas_income)}"
+            msg = f"Our income: {round(self.income_calculator.mineral_income)} / {round(self.income_calculator.gas_income)}"
             msg += f"\nEnemy income: {self.enemy_mineral_income} / {round(self.enemy_gas_income)}"
             msg += (
                 f"\nResources: {round(self._our_income_advantage)}+{self.our_zones - self.enemy_zones}"

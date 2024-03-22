@@ -237,8 +237,8 @@ class PathingManager(ManagerBase):
                 point3 = Point3((point.x, point.y, z))
                 self.client.debug_box2_out(point3, 0.25)
 
-    def walk_distance(self, start: Point2, target: Point2) -> float:
-        result = self.map.find_path(MapType.Ground, start, target)
+    def walk_distance(self, start: Point2, target: Point2, map_type:MapType=MapType.Ground) -> float:
+        result = self.map.find_path(map_type, start, target)
         path = result[0]
 
         if len(path) < 1:
