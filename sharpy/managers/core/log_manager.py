@@ -85,6 +85,7 @@ class LogManager(ManagerBase, ILogManager):
             "module1": "INFO",
             "module2": "INFO",
             "terranbot.trees": "DEBUG",
+            "terranbot.combat.trees": "DEBUG",
         }
         logger.remove()
         logger.add(sys.stderr, level="DEBUG", format=formatter, filter=filtering)
