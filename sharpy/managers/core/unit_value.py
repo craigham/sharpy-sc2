@@ -325,7 +325,7 @@ class UnitValue(ManagerBase, IUnitValues):
             UnitTypeId.LARVA: UnitData(0, 0, 0, 0),
             UnitTypeId.EGG: UnitData(0, 0, 0, 0),
             UnitTypeId.DRONE: UnitData(50, 0, 1, 0.5, 12, features=[UnitFeature.HitsGround]),
-            UnitTypeId.QUEEN: UnitData(150, 0, 2, 2, features=[UnitFeature.HitsGround, UnitFeature.ShootsAir]),
+            UnitTypeId.QUEEN: UnitData(150, 0, 2, 3, features=[UnitFeature.HitsGround, UnitFeature.ShootsAir]),
             UnitTypeId.ZERGLING: UnitData(25, 0, 0.5, 0.5, features=[UnitFeature.HitsGround]),
             UnitTypeId.BANELINGCOCOON: UnitData(25, 25, 0.5, 1, features=[]),
             UnitTypeId.BANELING: UnitData(25, 25, 0.5, 1, features=[UnitFeature.HitsGround]),
