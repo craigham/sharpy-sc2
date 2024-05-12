@@ -81,10 +81,11 @@ class LogManager(ManagerBase, ILogManager):
         
         # fmt = "{self.ai.time_formatted.rjust(5)} {str(last_step_time).rjust(4)}ms  {name} - {message}"
         filtering = {
-            "": "INFO",  # Default.                        
+            "": "INFO",  # Default.          
+            "terranbot": "INFO",              
             "terranbot.buildsplans.acts.zerg_attack_utility": "DEBUG",
             # "terranbot.trees": "DEBUG",
-            # "terranbot.combat.trees": "DEBUG",
+            "terranbot.combat.trees": "DEBUG",
             # "terranbot.utilityai": "DEBUG",
             # "terranbot.utilityai.actions": "DEBUG",
             # "terranbot.utilityai.consideration": "DEBUG",
