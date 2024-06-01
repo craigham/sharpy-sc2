@@ -84,8 +84,8 @@ class LogManager(ManagerBase, ILogManager):
             "": "INFO",  # Default.          
             "terranbot": "INFO",              
             # "terranbot.buildsplans.acts.zerg_attack_utility": "DEBUG",
-            "terranbot.trees": "DEBUG",
-            "terranbot.combat.trees": "DEBUG",
+            # "terranbot.trees": "DEBUG",
+            # "terranbot.combat.trees": "DEBUG",
             # "terranbot.combat.micro.utility": "DEBUG",
             # "terranbot.utilityai": "DEBUG",
             # "terranbot.utilityai.actions": "DEBUG",
