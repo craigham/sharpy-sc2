@@ -61,7 +61,7 @@ class DefaultMicroMethods:
 
                 if move_type == MoveType.DefensiveRetreat or move_type == MoveType.PanicRetreat:
                     combat.move_to(group, target, move_type)
-                    break
+                    continue
 
                 if power.power > combat.regroup_threshold * total_power.power:
                     # Most of the army is here

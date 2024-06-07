@@ -17,6 +17,7 @@ class Sc2Map:
         placement_grid: np.ndarray,
         height_map: np.ndarray,
         playable_area: "sc2.position.Rect",
+        reaper_overrides:List[tuple[int,int]]
     ):
 
         self._overlord_spots: Optional[List[Tuple[float, float]]] = None
@@ -32,6 +33,7 @@ class Sc2Map:
             playable_area.y,
             playable_area.x + playable_area.width,
             playable_area.y + playable_area.height,
+            reaper_overrides
         )
 
     @property

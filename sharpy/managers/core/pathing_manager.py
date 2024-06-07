@@ -34,11 +34,15 @@ class PathingManager(ManagerBase):
         game_info: GameInfo = self.ai.game_info
         path_grid = game_info.pathing_grid
         placement_grid = game_info.placement_grid
+     
+        reaper_overrides = [] 
+
         self.map = Sc2Map(
             path_grid.data_numpy,
             placement_grid.data_numpy,
             game_info.terrain_height.data_numpy,
             game_info.playable_area,
+            reaper_overrides
         )
         if self.ai.start_location is not None:
             self.map.calculate_connections(self.ai.start_location)  # This is for checking dead warp zones
