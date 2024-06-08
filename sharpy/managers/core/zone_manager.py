@@ -52,6 +52,7 @@ class MapName(enum.Enum):
     Lightshade = 28  # LightshadeAIE
     # RomanticideAIE
     Oxide = 30  # OxideAIE
+    Gresvan = 31
 
 
 MAIN_ZONE_SIZE_CHANGES: Dict[MapName, float] = {
@@ -120,7 +121,7 @@ def recognize_map(map_name: str, height_hash: int) -> MapName:
     if "Lightshade" in map_name:
         return MapName.Lightshade
     if "Oxide" in map_name:
-        return MapName.Oxide
+        return MapName.Oxide    
     return MapName.Unknown
 
 
@@ -172,6 +173,9 @@ class ZoneManager(ManagerBase, IZoneManager):
 
         # noinspection PyTypeChecker
         height_hash: int = np.sum(knowledge.ai.game_info.terrain_height.data_numpy)
+        if height_hash == 3547936:
+            print(f'Overriding to Gresvan.  Map name is wrong, but using height hash')
+            self.ai.game_info.map_name = 'GresvanAIE'
         self.map = recognize_map(self.ai.game_info.map_name, height_hash)
         self.print(f"Map set to: {self.map} from name: {self.ai.game_info.map_name} and hash: {height_hash}.")
         self.init_zones()
