@@ -83,11 +83,12 @@ class LogManager(ManagerBase, ILogManager):
         filtering = {
             "": "INFO",  # Default.          
             "terranbot": "INFO",              
+            # "terranbot.activity": "DEBUG",
             # "terranbot.buildsplans.acts.zerg_attack_utility": "DEBUG",
             # "terranbot.trees": "DEBUG",
             "terranbot.combat.trees": "DEBUG",
             # "terranbot.combat.micro.utility": "DEBUG",
-            # "terranbot.utilityai": "DEBUG",
+            "terranbot.utilityai": "DEBUG",
             # "terranbot.utilityai.actions": "DEBUG",
             # "terranbot.utilityai.consideration": "DEBUG",
             # "terranbot.utilityai.maps": "DEBUG",            

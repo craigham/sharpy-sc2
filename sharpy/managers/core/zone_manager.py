@@ -66,9 +66,11 @@ MAIN_ZONE_SIZE_CHANGES: Dict[MapName, float] = {
 def recognize_map(map_name: str, height_hash: int) -> MapName:
     if height_hash == 4544808:
         return MapName.AcolyteLE
+    if "Gresvan" in map_name:
+        return MapName.Gresvan
     if "Redshift" in map_name:
         return MapName.RedshiftLE
-    if "Abyssal Reef" in map_name:
+    if "AbyssalReef" in map_name:
         return MapName.AbyssalReefLE
     if "Dreamcatcher" in map_name:
         return MapName.DreamcatcherLE
@@ -80,13 +82,13 @@ def recognize_map(map_name: str, height_hash: int) -> MapName:
         return MapName.AutomatonLE
     if "Blueshift" in map_name:
         return MapName.BlueshiftLE
-    if "Cerulean Fall" in map_name:
+    if "CeruleanFall" in map_name:
         return MapName.CeruleanFallLE
-    if "Kairos Junction" in map_name:
+    if "KairosJunction" in map_name:
         return MapName.KairosJunctionLE
-    if "Para Site" in map_name:
+    if "ParaSite" in map_name:
         return MapName.ParaSiteLE
-    if "Port Aleksander" in map_name:
+    if "PortAleksander" in map_name:
         return MapName.PortAleksanderLE
     if "Stasis" in map_name:
         return MapName.StasisLE
@@ -173,9 +175,6 @@ class ZoneManager(ManagerBase, IZoneManager):
 
         # noinspection PyTypeChecker
         height_hash: int = np.sum(knowledge.ai.game_info.terrain_height.data_numpy)
-        if height_hash == 3547936:
-            print(f'Overriding to Gresvan.  Map name is wrong, but using height hash')
-            self.ai.game_info.map_name = 'GresvanAIE'
         self.map = recognize_map(self.ai.game_info.map_name, height_hash)
         self.print(f"Map set to: {self.map} from name: {self.ai.game_info.map_name} and hash: {height_hash}.")
         self.init_zones()

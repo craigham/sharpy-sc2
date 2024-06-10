@@ -41,6 +41,8 @@ class KnowledgeBot(SkeletonBot, ABC):
         self.data_manager = DataManager()
 
     async def on_start(self):
+        # Don't want spaces in map name
+        self.game_info.map_name = self.game_info.map_name.replace(' ', '')
         """Allows initializing the bot when the game data is available."""
         user_managers = self.configure_managers()
 
