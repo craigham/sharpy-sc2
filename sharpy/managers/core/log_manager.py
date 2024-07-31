@@ -89,7 +89,7 @@ class LogManager(ManagerBase, ILogManager):
             "terranbot.trees": "DEBUG",
             "terranbot.combat.trees": "DEBUG",
             # "terranbot.combat.micro.utility": "DEBUG",
-            "terranbot.utilityai": "DEBUG",
+            # "terranbot.utilityai": "DEBUG",
             # "terranbot.utilityai.actions": "DEBUG",
             # "terranbot.utilityai.consideration": "DEBUG",
             # "terranbot.utilityai.maps": "DEBUG",            
