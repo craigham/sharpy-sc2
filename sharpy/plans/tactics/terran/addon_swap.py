@@ -1,4 +1,5 @@
 import math
+from loguru import logger
 from typing import Optional, Set, Dict, List, Callable
 
 from sc2.ids.ability_id import AbilityId
@@ -391,15 +392,18 @@ class ExecuteAddonSwap(ActBase):
             and not unit.is_using_ability(AbilityId.LIFT)
         ):
             unit.move(land_location)
+            self.ai.client.debug_sphere_out(Point3((*land_location, self.knowledge.get_z(land_location))), 2.5, color=Point3((145, 100, 0)))
         # Structure is close to land location but flying, order land command
         elif unit.is_flying and land_location.distance_to(unit) < 2 and not unit.is_using_ability(AbilityId.LAND):
             # TODO If land location is blocked, attempt to find another land location instead
-            if not self.ai.structures.closer_than(3,land_location):
-                new_land_location = self.position_terran(unit)
-                self.print(f"Something blocking landing location for {unit}, finding new land location")
-                self.building_solver.structure_target_move_location[unit.tag] = new_land_location
-                self.print(f"Old land location: {land_location}, new land location: {new_land_location}")
-                land_location = new_land_location
+            if self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location): # > 1 because unit that is trying to land is in this list
+                logger.warn("structure below")
+                self.ai.client.debug_sphere_out(Point3((*land_location, self.knowledge.get_z(land_location))), 2.5, color=Point3((145, 100, 0)))
+            #     new_land_location = self.position_terran(unit)
+            #     self.print(f"Something blocking landing location for {unit}, finding new land location")
+            #     self.building_solver.structure_target_move_location[unit.tag] = new_land_location
+            #     self.print(f"Old land location: {land_location}, new land location: {new_land_location}")
+            #     land_location = new_land_location
                 
             unit(AbilityId.LAND, land_location)
 
