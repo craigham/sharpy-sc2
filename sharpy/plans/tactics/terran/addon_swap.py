@@ -397,7 +397,7 @@ class ExecuteAddonSwap(ActBase):
         elif unit.is_flying and land_location.distance_to(unit) < 2 and not unit.is_using_ability(AbilityId.LAND):
             # TODO If land location is blocked, attempt to find another land location instead
             if self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location): # > 1 because unit that is trying to land is in this list
-                logger.warn("structure below")
+                logger.warning(f"structure below: {self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location)}")
                 self.ai.client.debug_sphere_out(Point3((*land_location, self.knowledge.get_z(land_location))), 2.5, color=Point3((145, 100, 0)))
             #     new_land_location = self.position_terran(unit)
             #     self.print(f"Something blocking landing location for {unit}, finding new land location")
