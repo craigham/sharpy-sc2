@@ -238,7 +238,7 @@ class EnemyArmyPredicter(ManagerBase):
         await self.debug_message()
 
     async def debug_message(self):
-        if self.knowledge.my_race == Race.Protoss:
+        if self.knowledge.my_race == Race.Terran:
             # my_comp = self.enemy_build.gate_type_values(self.predicted_enemy_composition)
             # my_comp.extend(self.enemy_build.robo_type_values(self.predicted_enemy_composition))
             # my_comp.extend(self.enemy_build.star_type_values(self.predicted_enemy_composition))
