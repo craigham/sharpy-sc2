@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Optional
-
+from loguru import logger
 from sc2.data import Race
 from sc2.ids.ability_id import AbilityId
 from sharpy.general.zone import Zone
@@ -108,6 +108,7 @@ class Expand(ActBase):
         if zone_currently_expanding:
             self.gather_manager.set_expanding_to(zone_currently_expanding.center_location)
         else:
+            logger.info(f"Expanding({self.to_count=}) to: ({expand_here.center_location})")
             self.gather_manager.set_expanding_to(expand_here.center_location)
 
         if pending_count:

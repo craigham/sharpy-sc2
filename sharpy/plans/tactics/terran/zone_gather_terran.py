@@ -1,15 +1,40 @@
-from typing import List
-
+from typing import List, Optional
+import py_trees
+from py_trees.common import Status
 import sc2
 from sc2.ids.ability_id import AbilityId
 from sharpy.interfaces import IGatherPointSolver, IUnitValues
+from sharpy.interfaces.combat_manager import MoveType
 from sharpy.plans.acts import ActBase
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.position import Point2
 from sc2.unit import Unit
 
 from sharpy.knowledges import Knowledge
+import terranbot.trees.behaviours.general as bh_general 
 
+
+# if terran opponent, split early bio between reaper jump near 3rd/4th and the ramp
+#TODO handle criteria for each gather point?  eg. 1/2 of bio produced with max 4, etc
+class SplitBioGatherPoints(bh_general.BotBehaviour):
+    def __init__(self, namespace=None, name: str = None, gather_points:Optional[List[Point2]] = None):
+        super().__init__(namespace, name or self.__class__.__name__)
+
+    def setup(self, **kwargs: bh_general.Any) -> None:
+        super().setup(**kwargs)
+    
+    
+    def update(self) -> Status:
+        return Status.RUNNING
+
+
+def build_tree(ai):
+    opponent_race_selector = py_trees.composites.Selector("Opponent Race Selector", memory=True)
+    terran_sequence = py_trees.composites.Sequence("Terran Sequence", memory=False)
+    default_sequence = py_trees.composites.Sequence("Default Sequence", memory=False)
+    opponent_race_selector.add_child(terran_sequence, default_sequence)
+
+    return py_trees.trees.BehaviourTree(opponent_race_selector)
 
 class PlanZoneGatherTerran(ActBase):
     gather_point: Point2
@@ -60,5 +85,5 @@ class PlanZoneGatherTerran(ActBase):
                 elif (d > 6.5 and unit.type_id != UnitTypeId.SIEGETANKSIEGED) or d > 9:
                     self.combat.add_unit(unit)
 
-        self.combat.execute(self.gather_point)
+        self.combat.execute(self.gather_point, move_type=MoveType.DefensiveRetreat)
         return True  # Always non blocking

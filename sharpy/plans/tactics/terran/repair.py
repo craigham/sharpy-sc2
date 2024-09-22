@@ -1,5 +1,6 @@
 from math import ceil
 from typing import TYPE_CHECKING
+from sharpy.general.extended_power import ExtendedPower
 from sharpy.plans.acts import ActBase
 from sharpy.managers.core.roles import UnitTask
 from sharpy.general.zone import Zone
@@ -85,7 +86,11 @@ class Repair(ActBase):
         return False
 
     def solve_scv_count(self, zone: Zone, unit: Unit) -> int:
-        power_max = max(1, zone.known_enemy_power.power / 3)
+        # used to use zone power, but that didnt work well along zone borders
+        nearby_enemies = self.ai.enemy_units.closer_than(15, unit.position)
+        nearby_power = ExtendedPower(self.ai.unit_value)
+        nearby_power.add_units(nearby_enemies)
+        power_max = max(1, nearby_power.power / 3)
         if unit.type_id == UnitTypeId.BUNKER:
             hp_max = 6
         elif (
