@@ -92,10 +92,13 @@ class CombatUnits:
                 continue  # We can't shoot the targets here
 
             center = combat_group.center
-
-            distance = start.distance_to(center)
-            if distance < best_distance:
-                best_distance = distance
-                group = combat_group
+            # filter out finding units with age, in a visible area of screen, if not burrowed.
+            group_visible = self.knowledge.ai.is_visible(center)
+            valid_group = any(True for unit in combat_group.units if not (unit.age > 10 and not unit.is_burrowed and group_visible))
+            if valid_group:
+                distance = start.distance_to(center)
+                if distance < best_distance:
+                    best_distance = distance
+                    group = combat_group
 
         return group
