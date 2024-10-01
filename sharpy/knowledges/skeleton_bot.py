@@ -7,6 +7,7 @@ from sc2.constants import abilityid_to_unittypeid
 from sc2.data import Result
 from sc2.game_data import Cost
 from sc2.ids.unit_typeid import UnitTypeId
+from sc2.unit import Unit
 from sc2.unit_command import UnitCommand
 from sc2.units import Units
 from config import get_config, get_version
@@ -135,6 +136,9 @@ class SkeletonBot(BotAI, ABC):
 
     async def on_unit_destroyed(self, unit_tag: int):
         await self.knowledge.on_unit_destroyed(unit_tag)
+
+    async def on_unit_took_damage(self, unit: Unit, amount_damage_taken: float):
+        await self.knowledge.on_unit_took_damage(unit, amount_damage_taken)
 
     async def on_end(self, game_result: Result):
         await self.knowledge.on_end(game_result)

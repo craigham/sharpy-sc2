@@ -12,3 +12,11 @@ class UnitDestroyedEvent:
 
         self.unit_tag: int = unit_tag
         self.unit: Optional[Unit] = unit
+
+class UnitDamagedEvent:
+    """An event indicating which unit just took damage."""
+
+    def __init__(self, unit: Unit, damage:int):        
+        assert isinstance(unit, Unit) or unit is None        
+        self.unit: Unit = unit
+        self.damage: int = damage

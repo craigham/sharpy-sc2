@@ -4,7 +4,9 @@ from configparser import ConfigParser
 from typing import List, Optional, Callable, Type, Union
 
 from sc2.data import Race, Result
+from sc2.unit import Unit
 from sharpy.events import UnitDestroyedEvent
+from sharpy.events.unit_destroyed_event import UnitDamagedEvent
 from sharpy.interfaces.data_manager import IDataManager
 from sharpy.managers.core import *
 from sharpy.interfaces import (
@@ -61,6 +63,7 @@ class Knowledge:
 
         # Event listeners
         self._on_unit_destroyed_listeners: List[Callable] = list()
+        self._on_unit_damaged_listeners: List[Callable] = list()
 
     @property
     def debug(self) -> bool:
@@ -243,6 +246,9 @@ class Knowledge:
             else:
                 self.print(f"Unknown unit destroyed: {unit_tag}", log_level=logging.DEBUG)
 
+    async def on_unit_took_damage(self, unit: Unit, damage: float):
+        self.fire_event(self._on_unit_damaged_listeners, UnitDamagedEvent(unit, damage))
+
     # todo: if this is useful, it should be refactored as a more general solution
 
     def register_on_unit_destroyed_listener(self, func: Callable[[UnitDestroyedEvent], None]):
@@ -253,6 +259,15 @@ class Knowledge:
 
     def unregister_on_unit_destroyed_listener(self, func):
         self._on_unit_destroyed_listeners.remove(func)
+    
+    def register_on_unit_damaged_listener(self, func: Callable[[UnitDamagedEvent], None]):
+        assert isinstance(func, Callable)
+        if self.previous_units_manager is None:
+            raise Exception("Previous units manager needs the be set to register for the unit destroyed event")
+        self._on_unit_damaged_listeners.append(func)
+
+    def unregister_on_unit_damaged_listener(self, func):
+        self._on_unit_damaged_listeners.remove(func)
 
     @staticmethod
     def fire_event(listeners, event):
