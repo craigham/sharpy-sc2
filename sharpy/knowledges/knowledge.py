@@ -160,11 +160,17 @@ class Knowledge:
         self.previous_units_manager = self.get_manager(IPreviousUnitsManager)
 
         for manager in self.managers:
-            await manager.start(self)
+            try:
+                await manager.start(self)
+            except Exception as e:
+                self.print(f"Error starting manager {manager.__class__.__name__}: {e}", log_level=logging.ERROR)
 
         for manager in self.managers:
             if isinstance(manager, IPostStart):
-                await manager.post_start()
+                try:
+                    await manager.post_start()
+                except Exception as e:
+                    self.print(f"Error in post_start for manager {manager.__class__.__name__}: {e}", log_level=logging.ERROR)
 
         self.started = True
 
