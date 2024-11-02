@@ -41,4 +41,8 @@ class SubActs(ActBase):
     async def start(self, knowledge: "Knowledge"):
         await super().start(knowledge)
         for order in self.orders:
-            await self.start_component(order, knowledge)
+            try:
+                await self.start_component(order, knowledge)
+            except Exception as e:
+                print(f"Error starting order {order}: {e}")
+                raise e
