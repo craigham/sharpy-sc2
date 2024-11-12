@@ -10,7 +10,7 @@ from sharpy.plans.acts import ActBase
 from sharpy.knowledges import Knowledge
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.unit import Unit
-
+from terranbot.colors import Color
 """
 Background info:
 A structure that is building an addon will have .orders of the addon creation ability, the addon itself will have the proper id, e.g. UnitTypeId.BARRACKSREACTOR if it is a reactor created by barracks, the barracks.add_on_tag will be 0 while in construction
@@ -118,7 +118,13 @@ class PlanAddonSwap(ActBase):
             return True
         await self.plan_addon_swaps()
         # Block if structures are not satisfied
+        if self.debug: self.draw_move_locations()
         return False
+
+    def draw_move_locations(self):
+        for building_tag, location in self.building_solver.structure_target_move_location.items():
+            self.ai.draw_sphere_at_point2(location, radius=.5, color=Color.WHITE)
+            self.ai.draw_unit_line_vector(location, self.ai.structures.by_tag(building_tag).position, color=Color.BLUE)
 
     async def update_units(self):
         self.locations_with_addon[UnitTypeId.TECHLAB] = {
@@ -173,6 +179,8 @@ class PlanAddonSwap(ActBase):
                 if (
                     self.production_with_addon[production_type][addon_type].amount
                     < self.desired_amount[production_type][addon_type]
+                    or (self.force_move_to_naked and self.production_with_addon[production_type][addon_type].amount
+                                                        > self.desired_amount[production_type][addon_type])
                 ):
                     self.completed = False
                     return
@@ -211,7 +219,7 @@ class PlanAddonSwap(ActBase):
                         self.force_move_to_naked
                         and production.tag not in self.building_solver.structure_target_move_location
                     ):
-                        await self.lift_away_from_addon(production)
+                         await self.lift_away_from_addon(production)
 
     async def plan_attach_to_addons(self):
         """
@@ -220,7 +228,7 @@ class PlanAddonSwap(ActBase):
         """
         for production_type in PRODUCTION_TYPES:
             for addon_type in ADDON_TYPES:
-                production_with_addon: Units = self.production_with_addon[production_type][addon_type]
+                production_with_addon: Units = self.production_with_addon[production_type][addon_type].sorted(key=lambda s: s.build_progress, reverse=False)
                 target_amount: int = self.desired_amount[production_type][addon_type]
                 deficit_count: int = max(0, target_amount - production_with_addon.amount)
                 if deficit_count <= 0:
@@ -373,6 +381,9 @@ class ExecuteAddonSwap(ActBase):
             or unit.is_using_ability(AbilityId.LIFT)
             or unit.is_using_ability(AbilityId.LAND)
         )
+        if unit.build_progress < 1:
+            return
+            
         if unit_is_busy:
             return
 
