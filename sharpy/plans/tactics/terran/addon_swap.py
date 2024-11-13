@@ -122,9 +122,11 @@ class PlanAddonSwap(ActBase):
         return False
 
     def draw_move_locations(self):
-        for building_tag, location in self.building_solver.structure_target_move_location.items():
+        for building_tag, location in self.building_solver.structure_target_move_location.items():            
             self.ai.draw_sphere_at_point2(location, radius=.5, color=Color.WHITE)
-            self.ai.draw_unit_line_vector(location, self.ai.structures.by_tag(building_tag).position, color=Color.BLUE)
+            building = self.ai.structures.find_by_tag(building_tag)
+            if building:
+                self.ai.draw_unit_line_vector(location, building.position, color=Color.BLUE)
 
     async def update_units(self):
         self.locations_with_addon[UnitTypeId.TECHLAB] = {
@@ -409,6 +411,7 @@ class ExecuteAddonSwap(ActBase):
             # TODO If land location is blocked, attempt to find another land location instead
             if self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location): # > 1 because unit that is trying to land is in this list
                 logger.warning(f"structure below: {self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location)}")
+                await self.ai.chat_manager.chat_taunt_once("addon_land_blocked", lambda: "Tag:addon_land_blocked", team_only=True)
                 self.ai.client.debug_sphere_out(Point3((*land_location, self.knowledge.get_z(land_location))), 2.5, color=Point3((145, 100, 0)))
             #     new_land_location = self.position_terran(unit)
             #     self.print(f"Something blocking landing location for {unit}, finding new land location")
