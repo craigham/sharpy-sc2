@@ -87,6 +87,7 @@ class LogManager(ManagerBase, ILogManager):
             "terranbot.builds": "DEBUG",
             "terranbot.builds.plans.acts": "INFO",
             "terranbot.builds.plans.acts.zone_defense": "TRACE",
+            "terranbot.builds.plans.tactics.terran.addon_swap": "DEBUG",
             "terranbot.grouping": "DEBUG",
             "terranbot.combat.vectors": "DEBUG",
             "terranbot.combat.handle_groups": "DEBUG",

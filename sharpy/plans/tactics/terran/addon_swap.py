@@ -104,18 +104,25 @@ class PlanAddonSwap(ActBase):
         }
 
         self.structures_at_positions: Dict[Point2, Unit] = {}
+        self.has_executed_once = False
 
     async def start(self, knowledge: Knowledge):
         await super().start(knowledge)
         self.building_solver = knowledge.get_required_manager(BuildingSolver)
 
     async def execute(self) -> bool:
+        if not self.has_executed_once:
+            self.has_executed_once = True
+            logger.debug(f'Clearing addon swap move locations - first execution - {self.desired_amount=}')
+            self.building_solver.structure_target_move_location.clear()
+
         if self.only_once and self.completed:
             return True
         await self.update_units()
         await self.check_if_plan_is_completed()
         if self.completed:
             return True
+        logger.debug(f'{self.desired_amount}')
         await self.plan_addon_swaps()
         # Block if structures are not satisfied
         if self.debug: self.draw_move_locations()
@@ -230,7 +237,7 @@ class PlanAddonSwap(ActBase):
         """
         for production_type in PRODUCTION_TYPES:
             for addon_type in ADDON_TYPES:
-                production_with_addon: Units = self.production_with_addon[production_type][addon_type].sorted(key=lambda s: s.build_progress, reverse=False)
+                production_with_addon: Units = self.production_with_addon[production_type][addon_type].sorted(key=lambda s: s.build_progress, reverse=True)
                 target_amount: int = self.desired_amount[production_type][addon_type]
                 deficit_count: int = max(0, target_amount - production_with_addon.amount)
                 if deficit_count <= 0:
@@ -246,7 +253,8 @@ class PlanAddonSwap(ActBase):
                     or unit.is_idle
                     or unit.is_using_ability(AbilityId.LIFT)
                     or unit.is_using_ability(AbilityId.LAND)
-                )[
+                    
+                ).sorted(key=lambda s: s.build_progress, reverse=True)[
                     :deficit_count
                 ]:  # type: Unit
                     land_location = await self.find_land_location_with_addon(production, addon_type)
@@ -268,7 +276,7 @@ class PlanAddonSwap(ActBase):
 
         current_location: Optional[Point2] = None
         current_distance = math.inf
-
+        
         reserved_landing_locations: Set[Point2] = set(self.building_solver.structure_target_move_location.values())
 
         for point in self.building_solver.buildings3x3:
@@ -410,7 +418,7 @@ class ExecuteAddonSwap(ActBase):
         elif unit.is_flying and land_location.distance_to(unit) < 2 and not unit.is_using_ability(AbilityId.LAND):
             # TODO If land location is blocked, attempt to find another land location instead
             if self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location): # > 1 because unit that is trying to land is in this list
-                logger.warning(f"structure below: {self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location)}")
+                logger.warning(f"structure below: {self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location)} - {land_location=} - {unit=}")
                 await self.ai.chat_manager.chat_taunt_once("addon_land_blocked", lambda: "Tag:addon_land_blocked", team_only=True)
                 self.ai.client.debug_sphere_out(Point3((*land_location, self.knowledge.get_z(land_location))), 2.5, color=Point3((145, 100, 0)))
             #     new_land_location = self.position_terran(unit)
@@ -432,8 +440,12 @@ class ExecuteAddonSwap(ActBase):
         current_distance = math.inf
 
         reserved_landing_locations: Set[Point2] = set(self.building_solver.structure_target_move_location.values())
-
+        locations_with_queued_3x3_build: Set[Point2] = {w.orders[0].target for w in self.ai.units(UnitTypeId.SCV) if w.orders and w.orders[0].ability.id in {AbilityId.TERRANBUILD_BARRACKS, AbilityId.TERRANBUILD_FACTORY, AbilityId.TERRANBUILD_STARPORT, AbilityId.TERRANBUILD_ENGINEERINGBAY}}
         for point in self.building_solver.buildings3x3:
+            # if a worker is queued to build here, dont use
+            if point in locations_with_queued_3x3_build:
+                logger.debug(f"Disqualifying because worker is queued to build here: {point}")
+                continue
             # If a structure is landing here from AddonSwap() then dont use this location
             if point in reserved_landing_locations:
                 continue
