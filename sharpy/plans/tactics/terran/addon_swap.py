@@ -417,7 +417,7 @@ class ExecuteAddonSwap(ActBase):
         # Structure is close to land location but flying, order land command
         elif unit.is_flying and land_location.distance_to(unit) < 2 and not unit.is_using_ability(AbilityId.LAND):
             # TODO If land location is blocked, attempt to find another land location instead
-            if self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location): # > 1 because unit that is trying to land is in this list
+            if self.ai.structures.tags_not_in({unit.tag}).not_flying.closer_than(2,land_location): # > 1 because unit that is trying to land is in this list
                 logger.warning(f"structure below: {self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location)} - {land_location=} - {unit=}")
                 await self.ai.chat_manager.chat_taunt_once("addon_land_blocked", lambda: "Tag:addon_land_blocked", team_only=True)
                 self.ai.client.debug_sphere_out(Point3((*land_location, self.knowledge.get_z(land_location))), 2.5, color=Point3((145, 100, 0)))
