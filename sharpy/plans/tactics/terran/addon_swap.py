@@ -124,17 +124,10 @@ class PlanAddonSwap(ActBase):
             return True
         logger.debug(f'{self.desired_amount}')
         await self.plan_addon_swaps()
-        # Block if structures are not satisfied
-        if self.debug: self.draw_move_locations()
+        # Block if structures are not satisfied        
         return False
 
-    def draw_move_locations(self):
-        for building_tag, location in self.building_solver.structure_target_move_location.items():            
-            self.ai.draw_sphere_at_point2(location, radius=.5, color=Color.WHITE)
-            building = self.ai.structures.find_by_tag(building_tag)
-            if building:
-                self.ai.draw_unit_line_vector(location, building.position, color=Color.BLUE)
-
+    
     async def update_units(self):
         self.locations_with_addon[UnitTypeId.TECHLAB] = {
             unit.add_on_land_position for unit in self.knowledge.unit_cache.own(TECHLABS)
@@ -377,6 +370,8 @@ class ExecuteAddonSwap(ActBase):
             dead_structures_tags = set(self.building_solver.structure_target_move_location) - alive_structures_tags
             for dead_structure_tag in dead_structures_tags:
                 self.building_solver.structure_target_move_location.pop(dead_structure_tag)
+            
+            if self.debug: self.draw_move_locations()
         return True
 
     async def execute_order(self, unit: Unit):
@@ -398,7 +393,11 @@ class ExecuteAddonSwap(ActBase):
             return
 
         land_location: Point2 = self.building_solver.structure_target_move_location[unit.tag]
-
+        # if non flying structure occupying, then lets find new land location
+        if self.ai.structures.closer_than(2, land_location).tags_not_in({unit.tag}) and not unit.is_flying:
+            await self.ai.chat_manager.chat_taunt_once("addon_land_new_location", lambda: "Tag:addon_land_new_location", team_only=True)
+            logger.warning(f'Something blocking landing location for {unit}, finding new land location')
+            land_location = self.position_terran(unit)
         # Structure has arrived and landed, done!
         if unit.position == land_location and not unit.is_flying and not unit.is_using_ability(AbilityId.LIFT):
             self.building_solver.structure_target_move_location.pop(unit.tag)
@@ -465,3 +464,10 @@ class ExecuteAddonSwap(ActBase):
                 current_location = point
                 current_distance = dist
         return current_location
+
+    def draw_move_locations(self):
+        for building_tag, location in self.building_solver.structure_target_move_location.items():            
+            self.ai.draw_sphere_at_point2(location, radius=.5, color=Color.WHITE)
+            building = self.ai.structures.find_by_tag(building_tag)
+            if building:
+                self.ai.draw_unit_line_vector(location, building.position, color=Color.BLUE)
