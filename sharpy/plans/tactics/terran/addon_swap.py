@@ -394,10 +394,10 @@ class ExecuteAddonSwap(ActBase):
 
         land_location: Point2 = self.building_solver.structure_target_move_location[unit.tag]
         # if non flying structure occupying, then lets find new land location
-        if self.ai.structures.closer_than(2, land_location).tags_not_in({unit.tag}) and not unit.is_flying:
-            await self.ai.chat_manager.chat_taunt_once("addon_land_new_location", lambda: "Tag:addon_land_new_location", team_only=True)
-            logger.warning(f'Something blocking landing location for {unit}, finding new land location')
-            land_location = self.position_terran(unit)
+        # if self.ai.structures.closer_than(2, land_location).tags_not_in({unit.tag}) and not unit.is_flying:
+        #     await self.ai.chat_manager.chat_taunt_once("addon_land_new_location", lambda: "Tag:addon_land_new_location", team_only=True)
+        #     logger.warning(f'Something blocking landing location for {unit}, finding new land location')
+        #     land_location = self.position_terran(unit)
         # Structure has arrived and landed, done!
         if unit.position == land_location and not unit.is_flying and not unit.is_using_ability(AbilityId.LIFT):
             self.building_solver.structure_target_move_location.pop(unit.tag)
@@ -420,11 +420,11 @@ class ExecuteAddonSwap(ActBase):
                 logger.warning(f"structure below: {self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location)} - {land_location=} - {unit=}")
                 await self.ai.chat_manager.chat_taunt_once("addon_land_blocked", lambda: "Tag:addon_land_blocked", team_only=True)
                 self.ai.client.debug_sphere_out(Point3((*land_location, self.knowledge.get_z(land_location))), 2.5, color=Point3((145, 100, 0)))
-            #     new_land_location = self.position_terran(unit)
+                new_land_location = self.position_terran(unit)
             #     self.print(f"Something blocking landing location for {unit}, finding new land location")
-            #     self.building_solver.structure_target_move_location[unit.tag] = new_land_location
+                self.building_solver.structure_target_move_location[unit.tag] = new_land_location
             #     self.print(f"Old land location: {land_location}, new land location: {new_land_location}")
-            #     land_location = new_land_location
+                land_location = new_land_location
                 
             unit(AbilityId.LAND, land_location)
 
