@@ -19,6 +19,7 @@ class Repair(ActBase):
         roles: "UnitRoleManager" = self.roles
         current_repairers = []
         for zone in self.zone_manager.our_zones:
+            zone_workers = zone.our_workers.exclude_type(UnitTypeId.MULE)
             pre_repairer = 0
             balance = zone.our_power.power - zone.assaulting_enemy_power.power
             if balance < -5:
@@ -29,7 +30,7 @@ class Repair(ActBase):
 
             repairing_zone_count = 0
 
-            for worker in zone.our_workers:  # type: Unit
+            for worker in zone_workers:  # type: Unit
                 if not worker.orders:
                     continue
                 if worker.is_repairing:
@@ -42,7 +43,7 @@ class Repair(ActBase):
                     desired_count = self.solve_scv_count(zone, unit)
 
                     if repairing_zone_count < desired_count:
-                        for worker in zone.our_workers:  # type: Unit
+                        for worker in zone_workers:  # type: Unit
                             if not worker.is_repairing and worker.tag not in current_repairers:
                                 worker.repair(unit)
                                 current_repairers.append(worker.tag)
@@ -55,7 +56,7 @@ class Repair(ActBase):
                 to_repair = zone.our_units.filter(lambda u: u.is_ready and (u.is_structure or u.is_mechanical))
                 enemies = zone.known_enemy_units
                 if to_repair and enemies:
-                    for worker in zone.our_workers:  # type: Unit
+                    for worker in zone_workers:  # type: Unit
                         if not worker.is_repairing and worker.tag not in current_repairers:
                             closest = to_repair.closest_to(enemies.center)
                             worker.repair(closest)
