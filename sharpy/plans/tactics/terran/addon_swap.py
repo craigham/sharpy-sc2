@@ -260,7 +260,7 @@ class PlanAddonSwap(ActBase):
                     if blocking_structure:
                         await self.lift_away_from_addon(blocking_structure)
 
-    def position_terran(self, unit: Unit) -> Optional[Point2]:
+    async def position_terran(self, unit: Unit) -> Optional[Point2]:
         """
         Copied and modified from grid_building.py
         Finds the closest landing location to dettach from addons.
@@ -280,6 +280,9 @@ class PlanAddonSwap(ActBase):
             if point in self.building_solver.free_addon_locations:
                 continue
             if buildings.closer_than(3.5, point) or buildings.closer_than(2, point.offset((2,-1))):
+                continue
+            if not await self.ai.can_place_single(UnitTypeId.SUPPLYDEPOT, point.offset(Point2((2.5, -0.5)))):
+                logger.debug(f'Cannot place reactor at {point.offset(Point2((2.5, -0.5)))}')
                 continue
             dist = unit.distance_to(point)
             if dist < current_distance:
@@ -305,7 +308,8 @@ class PlanAddonSwap(ActBase):
             2) Return closest landing position of a busy structure with that addon type
         """
         if addon_type is None:
-            return self.position_terran(unit)
+            pos = await self.position_terran(unit)
+            return pos
         elif addon_type in {UnitTypeId.TECHLAB, UnitTypeId.REACTOR}:
             free_addon_locations: Set[Point2] = self.free_addon_locations[addon_type]
             # Prefer locations that have no production structure or idle structures
@@ -420,7 +424,7 @@ class ExecuteAddonSwap(ActBase):
                 logger.warning(f"structure below: {self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location)} - {land_location=} - {unit=}")
                 await self.ai.chat_manager.chat_taunt_once("addon_land_blocked", lambda: "Tag:addon_land_blocked_{self.ai.time:.0f}", team_only=True)
                 self.ai.client.debug_sphere_out(Point3((*land_location, self.knowledge.get_z(land_location))), 2.5, color=Point3((145, 100, 0)))
-                new_land_location = self.position_terran(unit)
+                new_land_location = await self.position_terran(unit)
             #     self.print(f"Something blocking landing location for {unit}, finding new land location")
                 self.building_solver.structure_target_move_location[unit.tag] = new_land_location
             #     self.print(f"Old land location: {land_location}, new land location: {new_land_location}")
@@ -428,7 +432,7 @@ class ExecuteAddonSwap(ActBase):
                 
             unit(AbilityId.LAND, land_location)
 
-    def position_terran(self, unit: Unit) -> Optional[Point2]:
+    async def position_terran(self, unit: Unit) -> Point2|None:
         """
         Copied and modified from grid_building.py
         Finds the closest landing location to dettach from addons.
@@ -457,6 +461,9 @@ class ExecuteAddonSwap(ActBase):
             add_on_center: Point2 = point.offset(Point2((2.5, -0.5)))
             if buildings.closer_than(3.5, add_on_center):
                 print("Disqualifying because no room for add on")
+                continue
+            if not await self.ai.can_place_single(UnitTypeId.SUPPLYDEPOT, point.offset(Point2((2.5, -0.5)))):
+                logger.debug(f'Cannot place supply depot at {point.offset(Point2((2.5, -0.5)))}')
                 continue
 
             dist = unit.distance_to(point)
