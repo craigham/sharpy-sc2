@@ -1,4 +1,4 @@
-import enum
+from enum import IntEnum, Flag,auto
 import sys
 from typing import Dict, List, TYPE_CHECKING
 
@@ -24,27 +24,29 @@ workers_types = {UnitTypeId.SCV, UnitTypeId.PROBE, UnitTypeId.DRONE}
 
 
 
-class EnemyRushBuild(enum.IntEnum):
-    Macro = 0
-    Pool12 = 1
-    CannonRush = 2
-    ProxyRax = 3
-    OneBaseRax = 4
-    ProxyZealots = 5
-    Zealots = 6
-    OneHatcheryAllIn = 7
-    PoolFirst = 8
-    RoachRush = 9
-    Marauders = 10
-    HatchPool15_14 = 11
-    ProxyRobo = 12
-    RoboRush = 13
-    AdeptRush = 14
-    WorkerRush = 15
-    Proxy_Unknown = 16
+class EnemyRushBuild(Flag):
+    Macro = auto()
+    Pool12 = auto()
+    CannonRush = auto()
+    ProxyRax = auto()
+    OneBaseRax = auto()
+    ProxyZealots = auto()
+    Zealots = auto()
+    OneHatcheryAllIn = auto()
+    PoolFirst = auto()
+    RoachRush = auto()
+    Marauders = auto()
+    HatchPool15_14 = auto()
+    ProxyRobo = auto()
+    RoboRush = auto()
+    AdeptRush = auto()
+    WorkerRush = auto()
+    ProxyReaper = auto()
+    ProxyMarauders = auto()
+    ProxyRush = ProxyRax | ProxyZealots | ProxyRobo | ProxyReaper | ProxyMarauders
 
 
-class EnemyMacroBuild(enum.IntEnum):
+class EnemyMacroBuild(IntEnum):
     StandardMacro = 0
     BattleCruisers = 1
     Banshees = 2

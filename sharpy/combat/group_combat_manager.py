@@ -74,7 +74,7 @@ class GroupCombatManager(ManagerBase, ICombatManager):
         return self._debug and self.knowledge.debug
 
     def add_unit(self, unit: Unit):
-        if unit.type_id in ignored:  # Just no
+        if unit.type_id in ignored or unit.tag in self._tags:  # Just no
             return
 
         self._tags.append(unit.tag)
