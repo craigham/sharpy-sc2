@@ -7,9 +7,9 @@ from datetime import datetime
 from pathlib import Path
 
 from sc2.data import Result
-from sharpy.interfaces import IGameAnalyzer, IBuildDetector
+from sharpy.interfaces import IGameAnalyzer
 from sharpy.interfaces.data_manager import IDataManager
-from sharpy.managers.extensions.build_detector import EnemyRushBuild, EnemyMacroBuild
+from sharpy.managers.extensions.build_detector import EnemyRushBuild, EnemyMacroBuild, BuildDetector
 
 from sharpy.managers.core.manager_base import ManagerBase
 from sharpy.tools import IntervalFunc
@@ -20,7 +20,7 @@ DATA_FOLDER = "data"
 
 class DataManager(ManagerBase, IDataManager):
     game_analyzer: IGameAnalyzer
-    build_detector: IBuildDetector
+    build_detector: BuildDetector
     enabled: bool
     enable_write: bool
     last_result: Optional[GameResult]
@@ -34,7 +34,7 @@ class DataManager(ManagerBase, IDataManager):
     async def start(self, knowledge: "Knowledge"):
         await super().start(knowledge)
         self.game_analyzer = knowledge.get_required_manager(IGameAnalyzer)
-        self.build_detector = knowledge.get_manager(IBuildDetector)
+        self.build_detector = knowledge.get_manager(BuildDetector)
         if self.build_detector is None:
             self.print(f"No BuildDetector found, enemy build data cannot be saved", False, logging.WARNING)
 

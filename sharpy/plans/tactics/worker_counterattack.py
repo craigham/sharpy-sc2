@@ -1,8 +1,7 @@
 from typing import List
 
 from sc2.position import Point2
-from sharpy.managers.extensions.build_detector import EnemyRushBuild
-from sharpy.interfaces import IBuildDetector
+from sharpy.managers.extensions.build_detector import EnemyRushBuild, BuildDetector
 from sharpy.plans.acts import ActBase
 from sharpy.managers.core.roles import UnitTask
 from sharpy.general.zone import Zone
@@ -12,7 +11,7 @@ from sc2.units import Units
 
 
 class WorkerCounterAttack(ActBase):
-    build_detector: IBuildDetector
+    build_detector: BuildDetector
 
     def __init__(self):
         self.has_failed = False
@@ -23,7 +22,7 @@ class WorkerCounterAttack(ActBase):
     async def start(self, knowledge: "Knowledge"):
         await super().start(knowledge)
         self.gather_mf = self.solve_optimal_mineral_field()
-        self.build_detector = knowledge.get_required_manager(IBuildDetector)
+        self.build_detector = knowledge.get_required_manager(BuildDetector)
 
     def solve_optimal_mineral_field(self) -> Unit:
         main: Zone = self.zone_manager.own_main_zone

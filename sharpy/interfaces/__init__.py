@@ -13,4 +13,3 @@ from .log_manager import ILogManager
 from .game_analyzer import IGameAnalyzer
 from .post_start import IPostStart
 from .previous_units_manager import IPreviousUnitsManager
-from .build_detector import IBuildDetector
