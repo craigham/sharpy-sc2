@@ -287,7 +287,7 @@ class BuildingSolver(ManagerBase, IBuildingSolver):
         self.fill_zone(zone.center_location, zone_color)
 
         if self.knowledge.my_race == Race.Terran:
-            list = self._building_positions.get(BuildArea.Building)
+            list = self._building_positions.get(BuildArea.Building)            
             list.sort(key=lambda k: start.distance_to_point2(k))
 
         zone: Zone = self.zone_manager.expansion_zones[1]

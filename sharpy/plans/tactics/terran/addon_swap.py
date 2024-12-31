@@ -11,6 +11,7 @@ from sharpy.knowledges import Knowledge
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.unit import Unit
 from terranbot.colors import Color
+from terranbot.activity.location_modifiers import NearUnit
 """
 Background info:
 A structure that is building an addon will have .orders of the addon creation ability, the addon itself will have the proper id, e.g. UnitTypeId.BARRACKSREACTOR if it is a reactor created by barracks, the barracks.add_on_tag will be 0 while in construction
@@ -260,35 +261,35 @@ class PlanAddonSwap(ActBase):
                     if blocking_structure:
                         await self.lift_away_from_addon(blocking_structure)
 
-    async def position_terran(self, unit: Unit) -> Optional[Point2]:
-        """
-        Copied and modified from grid_building.py
-        Finds the closest landing location to dettach from addons.
-        """
-        buildings = self.ai.structures
+    # async def position_terran(self, unit: Unit) -> Optional[Point2]:
+    #     """
+    #     Copied and modified from grid_building.py
+    #     Finds the closest landing location to dettach from addons.
+    #     """
+    #     buildings = self.ai.structures
 
-        current_location: Optional[Point2] = None
-        current_distance = math.inf
+    #     current_location: Optional[Point2] = None
+    #     current_distance = math.inf
         
-        reserved_landing_locations: Set[Point2] = set(self.building_solver.structure_target_move_location.values())
+    #     reserved_landing_locations: Set[Point2] = set(self.building_solver.structure_target_move_location.values())
 
-        for point in self.building_solver.buildings3x3:
-            # If a structure is landing here from AddonSwap() then dont use this location
-            if point in reserved_landing_locations:
-                continue
-                # If this location has a techlab or reactor next to it, then don't create a new structure here
-            if point in self.building_solver.free_addon_locations:
-                continue
-            if buildings.closer_than(3.5, point) or buildings.closer_than(2, point.offset((2,-1))):
-                continue
-            if not await self.ai.can_place_single(UnitTypeId.SUPPLYDEPOT, point.offset(Point2((2.5, -0.5)))):
-                logger.debug(f'Cannot place reactor at {point.offset(Point2((2.5, -0.5)))}')
-                continue
-            dist = unit.distance_to(point)
-            if dist < current_distance:
-                current_location = point
-                current_distance = dist
-        return current_location
+    #     for point in self.building_solver.buildings3x3:
+    #         # If a structure is landing here from AddonSwap() then dont use this location
+    #         if point in reserved_landing_locations:
+    #             continue
+    #             # If this location has a techlab or reactor next to it, then don't create a new structure here
+    #         if point in self.building_solver.free_addon_locations:
+    #             continue
+    #         if buildings.closer_than(3.5, point) or buildings.closer_than(2, point.offset((2,-1))):
+    #             continue
+    #         if not await self.ai.can_place_single(UnitTypeId.SUPPLYDEPOT, point.offset(Point2((2.5, -0.5)))):
+    #             logger.debug(f'Cannot place reactor at {point.offset(Point2((2.5, -0.5)))}')
+    #             continue
+    #         dist = unit.distance_to(point)
+    #         if dist < current_distance:
+    #             current_location = point
+    #             current_distance = dist
+    #     return current_location
 
     async def lift_away_from_addon(self, unit: Unit):
         """ Plan to move structure away from addon. Find a free location to land to. """
@@ -299,7 +300,7 @@ class PlanAddonSwap(ActBase):
         """ Plan to move structure to target location. Reserve the location to not be used by any other structure or a GridBuilding() command. """
         self.building_solver.structure_target_move_location[unit.tag] = location
 
-    async def find_land_location_with_addon(self, unit: Unit, addon_type: UnitTypeId = None) -> Optional[Point2]:
+    async def find_land_location_with_addon(self, unit: Unit, addon_type: UnitTypeId) -> Optional[Point2]:
         """
         Finds a suitable landing position for unit with specific addon type.
         Attempts to
@@ -308,7 +309,7 @@ class PlanAddonSwap(ActBase):
             2) Return closest landing position of a busy structure with that addon type
         """
         if addon_type is None:
-            pos = await self.position_terran(unit)
+            pos = await self.building_solver.position_terran(unit.type_id, count=1, positioning_modifiers=NearUnit(unit))
             return pos
         elif addon_type in {UnitTypeId.TECHLAB, UnitTypeId.REACTOR}:
             free_addon_locations: Set[Point2] = self.free_addon_locations[addon_type]
@@ -424,7 +425,7 @@ class ExecuteAddonSwap(ActBase):
                 logger.warning(f"structure below: {self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location)} - {land_location=} - {unit=}")
                 await self.ai.chat_manager.chat_taunt_once("addon_land_blocked", lambda: "Tag:addon_land_blocked_{self.ai.time:.0f}", team_only=True)
                 self.ai.client.debug_sphere_out(Point3((*land_location, self.knowledge.get_z(land_location))), 2.5, color=Point3((145, 100, 0)))
-                new_land_location = await self.position_terran(unit)
+                new_land_location = await self.building_solver.position_terran(unit.type_id, count=1)
             #     self.print(f"Something blocking landing location for {unit}, finding new land location")
                 self.building_solver.structure_target_move_location[unit.tag] = new_land_location
             #     self.print(f"Old land location: {land_location}, new land location: {new_land_location}")
@@ -432,45 +433,45 @@ class ExecuteAddonSwap(ActBase):
                 
             unit(AbilityId.LAND, land_location)
 
-    async def position_terran(self, unit: Unit) -> Point2|None:
-        """
-        Copied and modified from grid_building.py
-        Finds the closest landing location to dettach from addons.
-        """
-        buildings = self.ai.structures
+    # async def position_terran(self, unit: Unit) -> Point2|None:
+    #     """
+    #     Copied and modified from grid_building.py
+    #     Finds the closest landing location to dettach from addons.
+    #     """
+    #     buildings = self.ai.structures
 
-        current_location: Optional[Point2] = None
-        current_distance = math.inf
+    #     current_location: Optional[Point2] = None
+    #     current_distance = math.inf
 
-        reserved_landing_locations: Set[Point2] = set(self.building_solver.structure_target_move_location.values())
-        locations_with_queued_3x3_build: Set[Point2] = {w.orders[0].target for w in self.ai.units(UnitTypeId.SCV) if w.orders and w.orders[0].ability.id in {AbilityId.TERRANBUILD_BARRACKS, AbilityId.TERRANBUILD_FACTORY, AbilityId.TERRANBUILD_STARPORT, AbilityId.TERRANBUILD_ENGINEERINGBAY}}
-        for point in self.building_solver.buildings3x3:
-            # if a worker is queued to build here, dont use
-            if point in locations_with_queued_3x3_build:
-                logger.debug(f"Disqualifying because worker is queued to build here: {point}")
-                continue
-            # If a structure is landing here from AddonSwap() then dont use this location
-            if point in reserved_landing_locations:
-                continue
-                # If this location has a techlab or reactor next to it, then don't create a new structure here
-            if point in self.building_solver.free_addon_locations:
-                continue
-            if buildings.closer_than(3.5, point):
-                continue
-            # make sure room for an addon too
-            add_on_center: Point2 = point.offset(Point2((2.5, -0.5)))
-            if buildings.closer_than(3.5, add_on_center):
-                print("Disqualifying because no room for add on")
-                continue
-            if not await self.ai.can_place_single(UnitTypeId.SUPPLYDEPOT, point.offset(Point2((2.5, -0.5)))):
-                logger.debug(f'Cannot place supply depot at {point.offset(Point2((2.5, -0.5)))}')
-                continue
+    #     reserved_landing_locations: Set[Point2] = set(self.building_solver.structure_target_move_location.values())
+    #     locations_with_queued_3x3_build: Set[Point2] = {w.orders[0].target for w in self.ai.units(UnitTypeId.SCV) if w.orders and w.orders[0].ability.id in {AbilityId.TERRANBUILD_BARRACKS, AbilityId.TERRANBUILD_FACTORY, AbilityId.TERRANBUILD_STARPORT, AbilityId.TERRANBUILD_ENGINEERINGBAY}}
+    #     for point in self.building_solver.buildings3x3:
+    #         # if a worker is queued to build here, dont use
+    #         if point in locations_with_queued_3x3_build:
+    #             logger.debug(f"Disqualifying because worker is queued to build here: {point}")
+    #             continue
+    #         # If a structure is landing here from AddonSwap() then dont use this location
+    #         if point in reserved_landing_locations:
+    #             continue
+    #             # If this location has a techlab or reactor next to it, then don't create a new structure here
+    #         if point in self.building_solver.free_addon_locations:
+    #             continue
+    #         if buildings.closer_than(3.5, point):
+    #             continue
+    #         # make sure room for an addon too
+    #         add_on_center: Point2 = point.offset(Point2((2.5, -0.5)))
+    #         if buildings.closer_than(3.5, add_on_center):
+    #             print("Disqualifying because no room for add on")
+    #             continue
+    #         if not await self.ai.can_place_single(UnitTypeId.SUPPLYDEPOT, point.offset(Point2((2.5, -0.5)))):
+    #             logger.debug(f'Cannot place supply depot at {point.offset(Point2((2.5, -0.5)))}')
+    #             continue
 
-            dist = unit.distance_to(point)
-            if dist < current_distance:
-                current_location = point
-                current_distance = dist
-        return current_location
+    #         dist = unit.distance_to(point)
+    #         if dist < current_distance:
+    #             current_location = point
+    #             current_distance = dist
+    #     return current_location
 
     def draw_move_locations(self):
         for building_tag, location in self.building_solver.structure_target_move_location.items():            
