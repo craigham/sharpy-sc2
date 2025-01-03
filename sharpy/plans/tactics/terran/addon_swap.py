@@ -423,7 +423,7 @@ class ExecuteAddonSwap(ActBase):
             # TODO If land location is blocked, attempt to find another land location instead
             if self.ai.structures.tags_not_in({unit.tag}).not_flying.closer_than(2,land_location): # > 1 because unit that is trying to land is in this list
                 logger.warning(f"structure below: {self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location)} - {land_location=} - {unit=}")
-                await self.ai.chat_manager.chat_taunt_once("addon_land_blocked", lambda: "Tag:addon_land_blocked_{self.ai.time:.0f}", team_only=True)
+                await self.ai.chat_manager.chat_taunt_once("addon_land_blocked", lambda: f"Tag:addon_land_blocked_{self.ai.time:.0f}", team_only=True)
                 self.ai.client.debug_sphere_out(Point3((*land_location, self.knowledge.get_z(land_location))), 2.5, color=Point3((145, 100, 0)))
                 new_land_location = await self.building_solver.position_terran(unit.type_id, count=1)
             #     self.print(f"Something blocking landing location for {unit}, finding new land location")
