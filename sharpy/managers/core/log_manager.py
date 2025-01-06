@@ -83,9 +83,9 @@ class LogManager(ManagerBase, ILogManager):
         filtering = {
             "": "INFO",  # Default.          
             "terranbot": "INFO",              
-            "terranbot.managers.build_detector": "DEBUG",
-            "terranbot.managers.pathing_manager": "DEBUG",
-            "terranbot.managers.map_analysis_manager": "DEBUG",
+            "terranbot.managers.build_detector": "INFO",
+            "terranbot.managers.pathing_manager": "INFO",
+            "terranbot.managers.map_analysis_manager": "INFO",
             "terranbot.builds": "INFO",
             "terranbot.builds.plans.acts": "INFO",
             "terranbot.activity.t_build_grid": "INFO",
@@ -99,7 +99,7 @@ class LogManager(ManagerBase, ILogManager):
             # "terranbot.actions": "DEBUG",
             # "terranbot.buildsplans.acts.zerg_attack_utility": "DEBUG",
             # "terranbot.trees": "DEBUG",
-            "terranbot.combat.trees": "DEBUG",
+            "terranbot.combat.trees": "INFO",
             # "terranbot.combat.micro.utility": "DEBUG",
             # "terranbot.utilityai": "DEBUG",
             # "terranbot.utilityai.actions": "DEBUG",
