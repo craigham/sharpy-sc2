@@ -73,7 +73,7 @@ class LogManager(ManagerBase, ILogManager):
     def setup_loguru(self, knowledge):
         def formatter(record):
             last_step_time = round(self.ai.step_time[3])
-            message = (f"{knowledge.ai.time_formatted.rjust(5)} {str(last_step_time).rjust(4)}ms  ",
+            message = (f"{knowledge.ai.time_formatted.rjust(5)} {str(knowledge.ai.state.game_loop).rjust(4)} {str(last_step_time).rjust(4)}ms  ",
                        f"{str(knowledge.ai.minerals).rjust(4)}M {str(knowledge.ai.vespene).rjust(4)}G ",
                        f"{str(knowledge.ai.supply_used).rjust(3)}/{str(knowledge.ai.supply_cap).rjust(3)}U ",
                        f"{record['name']}:{record['line']} {record['message']}\n")
@@ -89,12 +89,13 @@ class LogManager(ManagerBase, ILogManager):
             "terranbot.builds": "INFO",
             "terranbot.builds.plans.acts": "INFO",
             "terranbot.activity.t_build_grid": "INFO",
-            "terranbot.builds.plans.acts.dict_unit_spawner": "INFO",
-            "terranbot.builds.plans.acts.zone_defense": "INFO",
-            "terranbot.builds.plans.tactics.terran.addon_swap": "INFO",
+            # "terranbot.builds.plans.acts.dict_unit_spawner": "DEBUG",
+            "terranbot.builds.plans.acts.zone_defense": "DEBUG",
+            # "terranbot.builds.plans.tactics.terran.addon_swap": "DEBUG",
             "terranbot.grouping": "INFO",
             "terranbot.combat.vectors": "INFO",
-            "terranbot.combat.handle_groups": "INFO",
+            "terranbot.combat.handle_groups": "DEBUG",
+            "terranbot.trees.behaviours.gather": "DEBUG",
             # "terranbot.activity": "DEBUG",
             # "terranbot.actions": "DEBUG",
             # "terranbot.buildsplans.acts.zerg_attack_utility": "DEBUG",
