@@ -71,6 +71,12 @@ class ExtendedPower:
         self.detectors: int = 0
         self.stealth_power: float = 0
 
+    def __add__(self, other: "ExtendedPower") -> "ExtendedPower":
+        result = ExtendedPower(self.values)
+        result.add_power(self)
+        result.add_power(other)
+        return result
+
     @property
     def melee_percentage(self) -> float:
         if self.power > 0:
