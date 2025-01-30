@@ -1,11 +1,12 @@
 from typing import List
 
 from sc2.position import Point2
-from sharpy.managers.extensions.build_detector import EnemyRushBuild, BuildDetector
+from sharpy.managers.extensions.build_detector import EnemyRushBuild
 from sharpy.plans.acts import ActBase
 from sharpy.managers.core.roles import UnitTask
 from sharpy.general.zone import Zone
 
+from terranbot.managers import BuildDetector
 from sc2.unit import Unit
 from sc2.units import Units
 
