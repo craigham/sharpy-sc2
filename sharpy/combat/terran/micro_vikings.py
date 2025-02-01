@@ -16,15 +16,16 @@ class MicroVikings(GenericMicro):
             else:
                 return Action(None, False, AbilityId.MORPH_VIKINGFIGHTERMODE)
 
-        if is_fighter:
-            if (
-                not self.enemies_near_by(UnitTypeId.COLOSSUS).exists
-                and not self.enemies_near_by.flying.exists
-                and self.enemies_near_by.not_flying.exists
-            ):
-                return Action(None, False, AbilityId.MORPH_VIKINGASSAULTMODE)
-        else:
-            if self.engaged_power.air_presence > 0 or self.enemies_near_by(UnitTypeId.COLOSSUS).exists:
-                return Action(None, False, AbilityId.MORPH_VIKINGFIGHTERMODE)
+        # if is_fighter:
+        #     if (
+        #         not self.enemies_near_by(UnitTypeId.COLOSSUS).exists
+        #         and not self.enemies_near_by.flying.exists
+        #         and self.enemies_near_by.not_flying.exists
+        #         and not self.combat.get_all_units()({UnitTypeId.SIEGETANK, UnitTypeId.SIEGETANKSIEGED}).closer_than(15, unit)
+        #     ):
+        #         return Action(None, False, AbilityId.MORPH_VIKINGASSAULTMODE)
+        # else:
+        #     if self.engaged_power.air_presence > 0 or self.enemies_near_by(UnitTypeId.COLOSSUS).exists:
+        #         return Action(None, False, AbilityId.MORPH_VIKINGFIGHTERMODE)
 
         return command

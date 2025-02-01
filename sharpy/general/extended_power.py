@@ -138,7 +138,7 @@ class ExtendedPower:
                     self.air_power += pwr
 
             if unit_type in siege:
-                self.siege_power = pwr
+                self.siege_power += pwr
 
             if UnitFeature.Cloak in features:
                 self.stealth_power += pwr

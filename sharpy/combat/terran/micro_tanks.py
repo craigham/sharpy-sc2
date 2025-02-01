@@ -45,6 +45,8 @@ class MicroTanks(GenericMicro):
         status = self.siege_status.get(tank.tag)
         if status is None:
             status = SiegingStatus(tank)
+            if len(self.group.units({UnitTypeId.SIEGETANK, UnitTypeId.SIEGETANKSIEGED})) > 1:
+                status.delay = 0
             self.siege_status[tank.tag] = status
 
         return status

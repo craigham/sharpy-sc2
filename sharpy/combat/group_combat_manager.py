@@ -83,13 +83,8 @@ class GroupCombatManager(ManagerBase, ICombatManager):
         for unit in units:
             self.add_unit(unit)
 
-    def get_all_units(self) -> Units:
-        units = Units([], self.ai)
-        for tag in self._tags:
-            unit = self.cache.by_tag(tag)
-            if unit:
-                units.append(unit)
-        return units
+    def get_all_units(self) -> Units:        
+        return self.cache.by_tags(self._tags)
 
     def execute(self, target: Point2, move_type=MoveType.Assault, rules: Optional[MicroRules] = None):
         our_units = self.get_all_units()
@@ -205,19 +200,17 @@ class GroupCombatManager(ManagerBase, ICombatManager):
                 group = combat_group
 
         return group
-
-    def group_own_units(self, units: Units) -> List[CombatUnits]:
+    
+    def group_own_units(self, units: Units, eps=None) -> List[CombatUnits]:
         groups: List[Units] = []
 
-        # import time
-        # ns_pf = time.perf_counter_ns()
-
+        eps = eps or self.enemy_group_distance
         numpy_vectors: List[np.ndarray] = []
         for unit in units:
             numpy_vectors.append(np.array([unit.position.x, unit.position.y]))
 
         if numpy_vectors:
-            clustering = DBSCAN(eps=self.enemy_group_distance, min_samples=1, algorithm="kd_tree").fit(numpy_vectors)
+            clustering = DBSCAN(eps=eps, min_samples=1, algorithm="kd_tree").fit(numpy_vectors)
             # print(clustering.labels_)
 
             for index in range(0, len(clustering.labels_)):
