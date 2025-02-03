@@ -9,10 +9,10 @@ class IntervalFunc:
         self.cached_value = None
         self.last_call = None
 
-    def execute(self):
+    def execute(self, *args, **kwargs):
         if self.last_call is None or self.ai.time > self.last_call + self.timer_seconds:
             self.last_call = self.ai.time
-            self.cached_value = self.func()
+            self.cached_value = self.func(*args, **kwargs)
         return self.cached_value
 
 

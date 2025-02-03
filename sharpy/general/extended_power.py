@@ -77,6 +77,10 @@ class ExtendedPower:
         result.add_power(other)
         return result
 
+    def __iadd__(self, other: "ExtendedPower") -> "ExtendedPower":
+        self.add_power(other)
+        return self
+    
     @property
     def melee_percentage(self) -> float:
         if self.power > 0:
