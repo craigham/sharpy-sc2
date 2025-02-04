@@ -11,6 +11,7 @@ from sharpy.knowledges import Knowledge
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.unit import Unit
 from terranbot.colors import Color
+from terranbot.maps import IMType
 from terranbot.activity.location_modifiers import NearUnit
 """
 Background info:
