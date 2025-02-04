@@ -85,6 +85,7 @@ class LogManager(ManagerBase, ILogManager):
             "terranbot": "INFO",              
             # "terranbot.managers.build_detector": "DEBUG",
             # "terranbot.managers.pathing_manager": "DEBUG",
+            "terranbot.managers.t_building_solver": "DEBUG",
             # "terranbot.managers.map_analysis_manager": "DEBUG",
             # "terranbot.builds": "DEBUG",
             # "terranbot.builds.plans.acts": "DEBUG",
