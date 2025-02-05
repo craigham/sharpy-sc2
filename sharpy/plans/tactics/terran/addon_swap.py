@@ -432,7 +432,7 @@ class ExecuteAddonSwap(ActBase):
             #     self.print(f"Old land location: {land_location}, new land location: {new_land_location}")
                 land_location = new_land_location
             if self.ai.pathing_manager.influence_maps[IMType.ZONES][land_location] not in {0}:
-                await self.ai.chat_manager.chat_taunt_once("invalid_land_position", lambda: f"Tag:invalid_land_position_{land_location}", team_only=True)
+                await self.ai.chat_manager.chat_taunt_once("invalid_land_position", lambda: f"Tag:invalid_land_position_{land_location}_{self.ai.time:.0f}", team_only=True)
             unit(AbilityId.LAND, land_location)
 
     # async def position_terran(self, unit: Unit) -> Point2|None:
