@@ -91,7 +91,7 @@ class LogManager(ManagerBase, ILogManager):
             # "terranbot.builds.plans.acts": "DEBUG",
             # "terranbot.activity.t_build_grid": "DEBUG",
             # "terranbot.builds.plans.acts.dict_unit_spawner": "DEBUG",
-            "terranbot.builds.plans.acts.zone_defense": "DEBUG",
+            # "terranbot.builds.plans.acts.zone_defense": "DEBUG",
             # "terranbot.builds.plans.tactics.terran.addon_swap": "DEBUG",
             # "terranbot.grouping": "DEBUG",
             # "terranbot.combat.vectors": "DEBUG",
