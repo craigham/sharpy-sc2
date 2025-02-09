@@ -1,5 +1,6 @@
 from typing import List, Dict, Optional, Union
-
+from dataclasses import dataclass, field
+from enum import Enum, auto
 from sharpy.combat import *
 from sharpy.general.extended_power import ExtendedPower
 from sharpy.interfaces import ICombatManager
@@ -16,6 +17,22 @@ from sklearn.cluster import DBSCAN
 ignored = {UnitTypeId.MULE, UnitTypeId.LARVA, UnitTypeId.EGG}
 
 
+class MilitaryActionType(Enum):
+    ATTACK_ENEMY_BASE = auto()
+    SIEGE_LOCATION = auto()
+
+@dataclass
+class MilitaryAction:
+    action_type: MilitaryActionType
+    target: Point2
+    move_type: MoveType
+    expected_path: list[Point2]|None = field(init=False)
+    army_center_unit:Point2|None = field(init=False)
+    walk_distance_to_target:float|None = field(init=False)
+    
+    
+
+
 class GroupCombatManager(ManagerBase, ICombatManager):
     rules: MicroRules
 
@@ -25,6 +42,7 @@ class GroupCombatManager(ManagerBase, ICombatManager):
         self.default_rules.load_default_methods()
         self.default_rules.load_default_micro()
         self.enemy_group_distance = 7
+        self.military_action = None
 
     async def start(self, knowledge: "Knowledge"):
         await super().start(knowledge)
@@ -85,6 +103,11 @@ class GroupCombatManager(ManagerBase, ICombatManager):
 
     def get_all_units(self) -> Units:        
         return self.cache.by_tags(self._tags)
+
+    def execute_military_action(self, action: MilitaryAction, rules: MicroRules|None = None):
+        self.military_action = action
+        self.execute(action.target, action.move_type, rules)
+        self.military_action = None
 
     def execute(self, target: Point2, move_type=MoveType.Assault, rules: Optional[MicroRules] = None):
         our_units = self.get_all_units()

@@ -6,3 +6,4 @@ from .move_type import MoveType
 from .no_micro import NoMicro
 from .micro_workers import MicroWorkers
 from .micro_rules import MicroRules
+from .group_combat_manager import MilitaryAction, MilitaryActionType
