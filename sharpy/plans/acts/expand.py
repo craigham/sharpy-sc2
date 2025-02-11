@@ -79,7 +79,7 @@ class Expand(ActBase):
         if self.priority_base_index is not None:
             zones = sorted(zones, key=lambda z: z.zone_index == self.priority_base_index, reverse=True)
 
-        for zone in zones:  # type: "Zone"
+        for zone in zones:
             expanding = self.expanding_in(zone)
             if expand_here is None and zone.should_expand_here:
                 if not expanding:
@@ -148,11 +148,10 @@ class Expand(ActBase):
         cost = self.ai._game_data.calculate_ability_cost(unit.creation_ability)
 
         if self.income_calculator.mineral_income > 0 and self.consider_worker_production:
-            for town_hall in self.ai.townhalls:  # type: Unit
-                # TODO: Zerg(?)
+            for town_hall in self.ai.townhalls:
                 if town_hall.orders:
                     starting_next_worker_in = -50 / self.income_calculator.mineral_income
-                    for order in town_hall.orders:  # type: UnitOrder
+                    for order in town_hall.orders:
                         if order.ability.id in train_worker_abilitites:
                             starting_next_worker_in += 12 * (1 - order.progress)
 
