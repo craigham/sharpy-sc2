@@ -311,6 +311,8 @@ class PlanAddonSwap(ActBase):
         """
         if addon_type is None:
             pos = await self.building_solver.position_terran(unit.type_id, count=1, positioning_modifiers=NearUnit(unit))
+            if self.ai.pathing_manager.influence_maps[IMType.ZONES][pos] not in {0}:
+                self.ai.chat_manager.chat_taunt_once("invalid_land_position", lambda: f"Tag:invalid_land_position_{pos}_{self.ai.time:.0f}", team_only=True)
             return pos
         elif addon_type in {UnitTypeId.TECHLAB, UnitTypeId.REACTOR}:
             free_addon_locations: Set[Point2] = self.free_addon_locations[addon_type]
