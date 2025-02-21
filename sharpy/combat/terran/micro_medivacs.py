@@ -18,7 +18,7 @@ class MicroMedivacs(MicroStep):
         #
             # return current_command
 
-        if unit.energy < 5 and self.enemies_near_by:
+        if unit.energy < 5 and any(enemy.air_dps > 0 for enemy in self.enemies_near_by):
             return self.stay_safe(unit)
 
         healable_targets = self.group.ground_units.filter(
@@ -27,7 +27,7 @@ class MicroMedivacs(MicroStep):
             )
         )
 
-        if not healable_targets and self.enemies_near_by:
+        if not healable_targets and any(enemy.air_dps > 0 for enemy in self.enemies_near_by):
             return self.stay_safe(unit)
 
         return current_command

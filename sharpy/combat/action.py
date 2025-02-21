@@ -42,6 +42,9 @@ class Action:
 
         return self.target.position
 
+    def __repr__(self):
+        return f'Action(target={self.target}, is_attack={self.is_attack}, ability={self.ability}, debug_comment={self.debug_comment})'
+
 
 class NoAction(Action):
     def __init__(self):

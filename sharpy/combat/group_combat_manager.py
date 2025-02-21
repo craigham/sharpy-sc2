@@ -1,18 +1,22 @@
 from typing import List, Dict, Optional, Union
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum, auto
+from loguru import logger
 from sharpy.combat import *
 from sharpy.general.extended_power import ExtendedPower
 from sharpy.interfaces import ICombatManager
 from sharpy.managers.core import UnitCacheManager, PathingManager, ManagerBase
 from sharpy.combat import Action
 from sc2.units import Units
-
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.position import Point2, Point3
 from sc2.unit import Unit
 import numpy as np
 from sklearn.cluster import DBSCAN
+
+from terranbot.combat.simulator import EngagementResult
+from terranbot.pathing import PathChoke, PathRamp
 
 ignored = {UnitTypeId.MULE, UnitTypeId.LARVA, UnitTypeId.EGG}
 
@@ -26,11 +30,17 @@ class MilitaryAction:
     action_type: MilitaryActionType
     target: Point2
     move_type: MoveType
-    expected_path: list[Point2]|None = field(init=False)
-    army_center_unit:Point2|None = field(init=False)
-    walk_distance_to_target:float|None = field(init=False)
-    
-    
+    expected_path: Iterable[tuple[int,int]]|None = field(init=False, default=None, repr=False)
+    army_center_unit:Unit|None = field(init=False, default=None)
+    walk_distance_to_target:float|None = field(init=False, default=None)
+    distance_closest_significant_army:float|None = field(init=False, default=float('inf'))
+    youngest_age_enemy_army:int|None = field(init=False, default=None)
+    next_up_ramp:PathRamp|None = field(init=False, default=None)
+    next_down_ramp:PathRamp|None = field(init=False, default=None)
+    previous_down_ramp:PathRamp|None = field(init=False, default=None)
+    next_choke:PathChoke|None = field(init=False, default=None)
+    bio_positions:dict[int, Point2]|None = field(init=False, default=None)
+    expected_engagement_result:EngagementResult|None = field(init=False, default=None)
 
 
 class GroupCombatManager(ManagerBase, ICombatManager):
@@ -278,5 +288,5 @@ class GroupCombatManager(ManagerBase, ICombatManager):
                     groups[label].append(unit)
             # for label in clustering.labels_:
         ns_pf = time.perf_counter_ns() - ns_pf
-        # print(f"Enemy unit grouping (v2) took {ns_pf / 1000 / 1000} ms. groups: {len(groups)}")
+        logger.debug(f"Enemy unit grouping (v2) took {ns_pf / 1000 / 1000} ms. groups: {len(groups)}")
         return [CombatUnits(u, self.knowledge) for u in groups]

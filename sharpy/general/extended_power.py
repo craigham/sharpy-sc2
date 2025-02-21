@@ -129,7 +129,10 @@ class ExtendedPower:
                 self.ground_presence += pwr
 
             if UnitFeature.HitsGround in features:
-                self.ground_power += pwr
+                if unit_type == UnitTypeId.VIKINGFIGHTER:
+                    self.ground_power += .25
+                else:
+                    self.ground_power += pwr
                 if unit_type in melee:
                     self.melee_power += pwr
                 if unit_type in surround:
