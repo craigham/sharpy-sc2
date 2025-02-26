@@ -113,6 +113,12 @@ class ExtendedPower:
             assert isinstance(unit, UnitTypeId)
             pwr = self.values.power_by_type(unit, 1)
             unit_type = unit
+        
+        if unit_type == UnitTypeId.PHOENIX:
+            if isinstance(unit, Unit):
+                pwr = 1 * min(unit.energy/50, 1)
+            else:
+                pwr = 1
 
         pwr *= count
         self.power += pwr

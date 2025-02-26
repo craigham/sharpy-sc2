@@ -83,7 +83,7 @@ class LogManager(ManagerBase, ILogManager):
         filtering = {
             "": "INFO",  # Default.          
             "terranbot": "INFO",              
-            "terranbot.managers.enemy_army_tracker": "DEBUG",
+            # "terranbot.managers.enemy_army_tracker": "DEBUG",
             "terranbot.builds.plans.acts.zerg_attack_utility": "DEBUG",
             
             # "terranbot.act.t_build_grid": "DEBUG",
