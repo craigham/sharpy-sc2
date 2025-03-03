@@ -85,6 +85,7 @@ class LogManager(ManagerBase, ILogManager):
             "terranbot": "INFO",              
             # "terranbot.managers.enemy_army_tracker": "DEBUG",
             "terranbot.builds.plans.acts.zerg_attack_utility": "DEBUG",
+            "terranbot.combat.maneuvers.gather.main_gather": "DEBUG",
             # "terranbot.builds.plans.acts.zone_defense": "DEBUG",
             # "terranbot.act.t_build_grid": "DEBUG",
             # "terranbot.combat.micro": "DEBUG",
