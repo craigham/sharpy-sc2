@@ -49,6 +49,9 @@ breakable_rocks_12x2 = {
     UnitTypeId.DESTRUCTIBLEROCKEX1HORIZONTALHUGE
 }
 
+breakable_rocks_vertical_12x2 = {
+    UnitTypeId.DESTRUCTIBLEROCKEX1VERTICALHUGE
+}
 breakable_rocks_2x6 = {
     UnitTypeId.DESTRUCTIBLECITYDEBRIS2X6VERTICAL,
     UnitTypeId.DESTRUCTIBLEICE2X6VERTICAL,

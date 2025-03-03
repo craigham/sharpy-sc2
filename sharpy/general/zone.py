@@ -107,6 +107,12 @@ class Zone:
         if self.ramp is not None:
             self.gather_point = self.ramp.top_center.towards(self.center_location, -1)
 
+    def __repr__(self):
+        return f'Zone(zone_index={self.zone_index}, center={self.center_location}, is_ours={self.is_ours}, is_enemys={self.is_enemys}, is_neutral={self.is_neutral}, is_scouted_at_least_once={self.is_scouted_at_least_once}, resources={self.resources}, power_balance={self.power_balance})'
+
+    def __str__(self):
+        return f'Zone(zone_index={self.zone_index}, center={self.center_location})'
+
     @property
     def is_island(self) -> bool:
         """

@@ -1,5 +1,5 @@
 from typing import List, Dict
-
+from loguru import logger
 from sc2.ids.ability_id import AbilityId
 from sc2.position import Point2
 from sc2.unit import Unit
@@ -74,6 +74,10 @@ class SpeedMining(ActBase):
                 if target and 0.75 < worker.distance_to(target) < 2:
                     worker.move(target)
                     worker(AbilityId.SMART, mf, True)
+                    return
+
+            if self.debug and worker.order_target == townhall.tag and  not (worker.has_vespene or worker.has_cargo) and len(worker.orders) == 1:
+                logger.debug(f"Speed mining idle {worker.tag} at {mf.position}")
 
     def calculate_targets(self):
         zone_manager = self.knowledge.get_required_manager(IZoneManager)

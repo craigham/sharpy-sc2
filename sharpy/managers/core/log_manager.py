@@ -85,7 +85,7 @@ class LogManager(ManagerBase, ILogManager):
             "terranbot": "INFO",              
             # "terranbot.managers.enemy_army_tracker": "DEBUG",
             "terranbot.builds.plans.acts.zerg_attack_utility": "DEBUG",
-            
+            # "terranbot.builds.plans.acts.zone_defense": "DEBUG",
             # "terranbot.act.t_build_grid": "DEBUG",
             # "terranbot.combat.micro": "DEBUG",
             # "terranbot.managers.build_detector": "DEBUG",            
@@ -98,7 +98,7 @@ class LogManager(ManagerBase, ILogManager):
             # "terranbot.activity.t_build_grid": "DEBUG",
             # "terranbot.builds.plans.acts.dict_unit_spawner": "DEBUG",
             # "terranbot.builds.plans.acts.zone_gather": "DEBUG",
-            # "terranbot.builds.plans.acts.zone_defense": "DEBUG",
+            
             # "terranbot.builds.plans.tactics.terran.addon_swap": "DEBUG",
             # "terranbot.grouping": "DEBUG",
             # "terranbot.combat.vectors": "DEBUG",

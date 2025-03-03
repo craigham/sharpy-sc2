@@ -67,7 +67,7 @@ class PathingManager(ManagerBase):
 
     def set_rocks(self, grid: Union[sc2pathlib.PathFinder, Sc2Map]):
         for rock in self.ai.destructables:  # type: Unit
-            rock_type = rock.type_id
+            rock_type = rock.type_id            
             if rock.name == "MineralField450":
                 # Attempts to solve the issue with sc2 linux 4.10 vs Windows 4.11
                 grid.create_block(rock.position, (2, 1))
@@ -90,6 +90,8 @@ class PathingManager(ManagerBase):
                 grid.create_block(rock.position, (2, 6))
             elif rock_type in breakable_rocks_12x2:
                 grid.create_block(rock.position, (12, 2))
+            elif rock_type in breakable_rocks_vertical_12x2:
+                grid.create_block(rock.position, (2, 12))
                 
             elif rock_type in breakable_rocks_diag_BLUR:
                 for y in range(-4, 6):
@@ -136,7 +138,7 @@ class PathingManager(ManagerBase):
         self.map.create_block(positions, (2, 1))
 
         self.set_rocks(self.path_finder_terrain)
-        self.set_rocks(self.map)
+        self.set_rocks(self.map) 
 
         for building in self.ai.structures + self.ai.enemy_structures:  # type: Unit
             if building.type_id in buildings_2x2:

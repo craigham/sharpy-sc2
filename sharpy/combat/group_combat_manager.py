@@ -24,11 +24,17 @@ ignored = {UnitTypeId.MULE, UnitTypeId.LARVA, UnitTypeId.EGG}
 class MilitaryActionType(Enum):
     ATTACK_ENEMY_BASE = auto()
     SIEGE_LOCATION = auto()
+    ATTACK_ENEMY_PROXY_LOCATION = auto()
+
+@dataclass
+class MilitaryTarget:
+    target:Point2
+    action_type: MilitaryActionType
+    context:dict[str, object] = field(default_factory=dict, init=False)
 
 @dataclass
 class MilitaryAction:
-    action_type: MilitaryActionType
-    target: Point2
+    action_info: MilitaryTarget    
     move_type: MoveType
     expected_path: Iterable[tuple[int,int]]|None = field(init=False, default=None, repr=False)
     army_center_unit:Unit|None = field(init=False, default=None)
@@ -116,7 +122,7 @@ class GroupCombatManager(ManagerBase, ICombatManager):
 
     def execute_military_action(self, action: MilitaryAction, rules: MicroRules|None = None):
         self.military_action = action
-        self.execute(action.target, action.move_type, rules)
+        self.execute(action.action_info.target, action.move_type, rules)
         self.military_action = None
 
     def execute(self, target: Point2, move_type=MoveType.Assault, rules: Optional[MicroRules] = None):
@@ -134,7 +140,7 @@ class GroupCombatManager(ManagerBase, ICombatManager):
             for i in range(0, len(sorted_list)):
                 sorted_list[i].debug_index = i
 
-        self.rules.handle_groups_func(self, target, move_type)
+        self.rules.handle_groups_func(combat=self, target=target, move_type=move_type)
 
         self._tags.clear()
 
