@@ -1,5 +1,5 @@
 from typing import Optional, List
-
+from collections import Counter
 from sc2.position import Point2
 from sharpy import sc2math
 from sharpy.general.extended_power import ExtendedPower
@@ -30,6 +30,12 @@ class CombatUnits:
 
         if len(self.units) > 1:
             self.average_speed /= len(self.units)
+
+    def __str__(self)->str:
+        return f'Combat Units: {self.power} - {self.units.tags}'
+
+    def __repr__(self)->str:
+        return f'Combat Units({self.center.rounded}):\nPower: {self.power}\n{Counter(u.type_id for u in self.units)}'
 
     def is_too_spread_out(self) -> bool:
         if self._total_distance is None:

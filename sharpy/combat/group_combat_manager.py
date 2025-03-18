@@ -160,9 +160,11 @@ class GroupCombatManager(ManagerBase, ICombatManager):
         self.move_to(group, target, MoveType.Push)
 
     def move_to(self, group: CombatUnits, target, move_type: MoveType):
+        logger.debug(f'move_to: {target=} {move_type=}')
         self.action_to(group, target, move_type, False)
 
     def attack_to(self, group: CombatUnits, target, move_type: MoveType):
+        logger.debug(f'attack_to: {target=} {move_type=}')
         self.action_to(group, target, move_type, True)
 
     def action_to(self, group: CombatUnits, target, move_type: MoveType, is_attack: bool):

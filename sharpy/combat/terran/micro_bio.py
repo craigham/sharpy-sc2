@@ -12,7 +12,7 @@ class MicroBio(GenericMicro):
         self.stim_required = 0
 
     def group_solve_combat(self, units: Units, current_command: Action) -> Action:
-        self.stim_required = self.engaged_power.power
+        self.stim_required = self.engaged_power.power if self.group.power.power * .75 < self.engaged_power.power else 0
         for unit in units:
             if self.has_stim(unit):
                 if unit.type_id == UnitTypeId.MARAUDER:
