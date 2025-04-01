@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 from typing import Dict, List, Tuple, Union
 
 import numpy as np
@@ -18,7 +18,7 @@ from sharpy.general.rocks import *
 from .manager_base import ManagerBase
 from sharpy.managers.core.unit_value import buildings_2x2, buildings_3x3, buildings_5x5
 from sharpy.sc2math import point_normalize
-
+from terranbot.maps import IMType
 
 class PathingManager(ManagerBase):
     map: Sc2Map
@@ -256,7 +256,7 @@ class PathingManager(ManagerBase):
         path = result[0]
 
         if len(path) < 1:
-            self.print(f"No path found from {start} to {target}", log_level=logging.DEBUG)
+            logger.warning(f"No path found from {start} to {target}")
             return target
 
         if len(path) <= target_index:
@@ -283,12 +283,13 @@ class PathingManager(ManagerBase):
         return Point2((pos[0], pos[1]))
 
     def find_influence_air_path(self, start: Point2, target: Point2) -> Point2:
+        assert start.x >=0 and start.y >=0 and target.x >=0 and target.y >=0, f"{start}, {target}"
         result = self.map.find_path_influence(MapType.Air, start, target)
         path = result[0]
         target_index = 4
 
         if len(path) < 1:
-            self.print(f"No path found {start}, {target}")
+            logger.warning(f"No path found {start}, {target}")
             return target
 
         if len(path) <= target_index:
@@ -302,11 +303,16 @@ class PathingManager(ManagerBase):
     def find_influence_ground_path(
         self, start: Point2, target: Point2, target_index: int = 5, map_type: MapType = MapType.Ground
     ) -> Point2:
+        assert start.x >=0 and start.y >=0 and target.x >=0 and target.y >=0, f"{start}, {target}"
+        assert start.x < self.ai.game_info.map_size.x and start.y < self.ai.game_info.map_size.y and target.x < self.ai.game_info.map_size.x and target.y < self.ai.game_info.map_size.y, f"{start}, {target}" 
         result = self.map.find_path_influence(map_type, start, target)
         path = result[0]
 
         if len(path) < 1:
-            self.print(f"No path found {start}, {target}")
+            logger.warning(f"No path found {start}, {target}")
+            logger.warning(f"Pathing start: {self.influence_maps[IMType.GroundPathing][start]} , Pathing target: {self.influence_maps[IMType.GroundPathing][target]}")
+            # if self.knowledge.debug:
+            #     raise ValueError(f"No path found {start}, {target} - {map_type=}")
             return target
 
         if len(path) <= target_index:

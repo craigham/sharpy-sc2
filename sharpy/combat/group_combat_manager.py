@@ -26,11 +26,11 @@ class MilitaryActionType(Enum):
     SIEGE_LOCATION = auto()
     ATTACK_ENEMY_PROXY_LOCATION = auto()
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class MilitaryTarget:
     target:Point2
     action_type: MilitaryActionType
-    context:dict[str, object] = field(default_factory=dict, init=False)
+    context:dict[str, object] = field(default_factory=dict, init=False, compare=False)
 
 @dataclass
 class MilitaryAction:
