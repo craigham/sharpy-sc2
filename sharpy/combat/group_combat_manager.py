@@ -25,6 +25,7 @@ class MilitaryActionType(Enum):
     ATTACK_ENEMY_BASE = auto()
     SIEGE_LOCATION = auto()
     ATTACK_ENEMY_PROXY_LOCATION = auto()
+    JOIN_ARMY = auto()
 
 @dataclass(unsafe_hash=True)
 class MilitaryTarget:
