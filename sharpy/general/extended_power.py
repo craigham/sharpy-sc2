@@ -81,6 +81,10 @@ class ExtendedPower:
         self.add_power(other)
         return self
     
+    def __imul__(self, other: float) -> "ExtendedPower":
+        self.multiply(other)
+        return self
+    
     @property
     def melee_percentage(self) -> float:
         if self.power > 0:
