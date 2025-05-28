@@ -10,8 +10,14 @@ from sc2.main import logger as sc2_logger
 from sharpy.interfaces import ILogManager
 from .manager_base import ManagerBase
 
-
-
+# Map Python logging levels to loguru levels
+LOG_LEVEL_MAP = {
+    logging.DEBUG: "DEBUG",
+    logging.INFO: "INFO",
+    logging.WARNING: "WARNING",
+    logging.ERROR: "ERROR",
+    logging.CRITICAL: "CRITICAL"
+}
 
 class LogManager(ManagerBase, ILogManager):
     config: ConfigParser
@@ -68,7 +74,10 @@ class LogManager(ManagerBase, ILogManager):
 
         if self.start_with:
             message = self.start_with + message
-        self.logger.log(log_level, message)
+            
+        # Map Python logging level to loguru level
+        loguru_level = LOG_LEVEL_MAP.get(log_level, "INFO")
+        self.logger.log(loguru_level, message)
 
     def setup_loguru(self, knowledge):
         def formatter(record):
@@ -76,7 +85,7 @@ class LogManager(ManagerBase, ILogManager):
             message = (f"{knowledge.ai.time_formatted.rjust(5)} {str(knowledge.ai.state.game_loop).rjust(4)} {str(last_step_time).rjust(4)}ms  ",
                        f"{str(knowledge.ai.minerals).rjust(4)}M {str(knowledge.ai.vespene).rjust(4)}G ",
                        f"{str(knowledge.ai.supply_used).rjust(3)}/{str(knowledge.ai.supply_cap).rjust(3)}U ",
-                       f"{record['name']}:{record['line']} {record['message']}\n")
+                       f"{record['level']} {record['name']}:{record['line']} {record['message']}\n")
             return "".join(message)
         
         # fmt = "{self.ai.time_formatted.rjust(5)} {str(last_step_time).rjust(4)}ms  {name} - {message}"
@@ -87,7 +96,7 @@ class LogManager(ManagerBase, ILogManager):
             "terranbot.builds.plans.acts.tbone_attack": "DEBUG",
             # "terranbot.combat.maneuvers.gather.main_gather": "DEBUG",
             # "terranbot.builds.plans.acts.zerg_attack_utility": "DEBUG",
-            "terranbot.combat.trees.utility_base_combat": "DEBUG",
+            # "terranbot.combat.trees.utility_base_combat": "DEBUG",
             # "terranbot.combat.maneuvers.siege": "DEBUG",
             # "terranbot.builds.plans.acts.zone_defense": "DEBUG",
             # "terranbot.managers.terry_combat_manager": "DEBUG",
@@ -114,8 +123,9 @@ class LogManager(ManagerBase, ILogManager):
             # "terranbot.actions": "DEBUG",            
             # "terranbot.trees": "DEBUG",
             # "terranbot.combat.trees": "DEBUG",
+            # "terranbot.combat.trees.medivacs": "DEBUG",
             # "terranbot.combat.micro.utility": "DEBUG",
-            "terranbot.utilityai": "DEBUG",
+            # "terranbot.utilityai": "DEBUG",
             # "terranbot.utilityai.actions": "DEBUG",
             # "terranbot.utilityai.consideration": "DEBUG",
             # "terranbot.utilityai.maps": "DEBUG",            

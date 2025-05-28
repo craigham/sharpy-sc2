@@ -1,5 +1,5 @@
 from typing import Union, List, Set
-
+import copy
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.unit import Unit
 
@@ -84,6 +84,16 @@ class ExtendedPower:
     def __imul__(self, other: float) -> "ExtendedPower":
         self.multiply(other)
         return self
+    
+    def __mul__(self, other: float) -> "ExtendedPower":        
+        a_copy = copy.copy(self)
+        self.multiply(other)
+        return a_copy 
+
+    def __sub__(self, other: "ExtendedPower") -> "ExtendedPower":
+        a_copy = copy.copy(self)
+        a_copy.substract_power(other)
+        return a_copy
     
     @property
     def melee_percentage(self) -> float:
