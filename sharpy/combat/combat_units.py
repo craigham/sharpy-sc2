@@ -35,7 +35,7 @@ class CombatUnits:
         return f'Combat Units: {self.power} - {self.units.tags}'
 
     def __repr__(self)->str:
-        return f'Combat Units({self.center.rounded}):\nPower: {self.power}\n{Counter(u.type_id for u in self.units)}\n'
+        return f'Combat Units: {self.power}-({self.center.rounded}): {Counter(u.type_id for u in self.units)}'
 
     def is_too_spread_out(self) -> bool:
         if self._total_distance is None:

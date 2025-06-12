@@ -1,5 +1,6 @@
 from typing import List, Dict, Optional, Union
 from collections.abc import Iterable
+from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from loguru import logger
@@ -274,14 +275,14 @@ class GroupCombatManager(ManagerBase, ICombatManager):
         return [CombatUnits(u, self.knowledge) for u in groups]
 
     def group_enemy_units(self) -> List[CombatUnits]:
-        groups: List[Units] = []
+        groups = defaultdict(list)
 
         import time
 
         ns_pf = time.perf_counter_ns()
 
         if self.cache.enemy_numpy_vectors:
-            clustering = DBSCAN(eps=self.enemy_group_distance, min_samples=1).fit(self.cache.enemy_numpy_vectors)
+            clustering = DBSCAN(eps=self.enemy_group_distance, min_samples=1, algorithm="kd_tree").fit(self.cache.enemy_numpy_vectors)
             # print(clustering.labels_)
             units = self.ai.all_enemy_units
             for index in range(0, len(clustering.labels_)):
@@ -289,13 +290,9 @@ class GroupCombatManager(ManagerBase, ICombatManager):
                 if unit.type_id in self.unit_values.combat_ignore or not unit.can_be_attacked:
                     continue
 
-                label = clustering.labels_[index]
-
-                if label >= len(groups):
-                    groups.append(Units([unit], self.ai))
-                else:
-                    groups[label].append(unit)
+                label = clustering.labels_[index]                
+                groups[label].append(unit)
             # for label in clustering.labels_:
         ns_pf = time.perf_counter_ns() - ns_pf
         logger.debug(f"Enemy unit grouping (v2) took {ns_pf / 1000 / 1000} ms. groups: {len(groups)}")
-        return [CombatUnits(u, self.knowledge) for u in groups]
+        return [CombatUnits(Units(u, bot_object=self.ai), knowledge=self.knowledge) for u in groups.values()]
