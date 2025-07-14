@@ -1,4 +1,5 @@
 from typing import List, Dict, Optional, Union
+from functools import cached_property
 from collections.abc import Iterable
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -9,6 +10,7 @@ from sharpy.general.extended_power import ExtendedPower
 from sharpy.interfaces import ICombatManager
 from sharpy.managers.core import UnitCacheManager, PathingManager, ManagerBase
 from sharpy.combat import Action
+from sharpy.general.zone import Zone
 from sc2.units import Units
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.position import Point2, Point3
@@ -18,6 +20,7 @@ from sklearn.cluster import DBSCAN
 
 from terranbot.combat.simulator import EngagementResult
 from terranbot.pathing import PathChoke, PathRamp
+from terranbot import utils
 
 ignored = {UnitTypeId.MULE, UnitTypeId.LARVA, UnitTypeId.EGG}
 
@@ -27,12 +30,46 @@ class MilitaryActionType(Enum):
     SIEGE_LOCATION = auto()
     ATTACK_ENEMY_PROXY_LOCATION = auto()
     JOIN_ARMY = auto()
+    ATTACK_ENEMY_UNITS = auto()
+
+class ArmyEncounterType(Enum):
+    GROUND_VS_GROUND = auto()
+    GROUND_VS_AIR = auto()
+    AIR_VS_AIR = auto()
+    AIR_VS_GROUND = auto()
+
 
 @dataclass(unsafe_hash=True)
 class MilitaryTarget:
-    target:Point2
+    target:Point2|CombatUnits|Zone
     action_type: MilitaryActionType
     context:dict[str, object] = field(default_factory=dict, init=False, compare=False)
+    
+    @cached_property
+    def target_position(self)->Point2:
+        if isinstance(self.target, Point2):
+            return self.target
+        elif isinstance(self.target, CombatUnits):
+            return self.target.units.first.position
+        else:
+            return self.target.center_location
+
+    def categorize_squad_target(self, army:CombatUnits)->ArmyEncounterType:
+        logger.debug(utils.log_format(f'Categorizing squad target: {self.target} {army}'))
+        us_air_only = army.ground_units.amount == 0
+        logger.debug(f'{us_air_only=} - {isinstance(self.target, CombatUnits)=}')
+        if isinstance(self.target, CombatUnits):
+            enemy_air_only = self.target.ground_units.amount == 0
+            logger.debug(f'{enemy_air_only=}')
+            if us_air_only:
+                return ArmyEncounterType.AIR_VS_AIR if enemy_air_only else ArmyEncounterType.AIR_VS_GROUND            
+            else:
+                return ArmyEncounterType.GROUND_VS_AIR if enemy_air_only else ArmyEncounterType.GROUND_VS_GROUND 
+        else:
+            if us_air_only:
+                return ArmyEncounterType.AIR_VS_GROUND
+            else:
+                return ArmyEncounterType.GROUND_VS_GROUND
 
 @dataclass
 class MilitaryAction:
@@ -124,7 +161,7 @@ class GroupCombatManager(ManagerBase, ICombatManager):
 
     def execute_military_action(self, action: MilitaryAction, rules: MicroRules|None = None):
         self.military_action = action
-        self.execute(action.action_info.target, action.move_type, rules)
+        self.execute(action.action_info.target_position, action.move_type, rules)
         self.military_action = None
 
     def execute(self, target: Point2, move_type=MoveType.Assault, rules: Optional[MicroRules] = None):

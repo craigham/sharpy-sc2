@@ -95,6 +95,18 @@ class ExtendedPower:
         a_copy.substract_power(other)
         return a_copy
     
+    def __lt__(self, other: "ExtendedPower") -> bool:
+        return self.power < other.power
+    
+    def __gt__(self, other: "ExtendedPower") -> bool:
+        return self.power > other.power
+    
+    def __le__(self, other: "ExtendedPower") -> bool:
+        return self.power <= other.power
+    
+    def __ge__(self, other: "ExtendedPower") -> bool:
+        return self.power >= other.power
+                        
     @property
     def melee_percentage(self) -> float:
         if self.power > 0:

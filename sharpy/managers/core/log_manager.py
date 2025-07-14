@@ -93,12 +93,13 @@ class LogManager(ManagerBase, ILogManager):
             "": "INFO",  # Default.          
             "terranbot": "INFO",              
             # "terranbot.managers.enemy_army_tracker": "DEBUG",
-            # "terranbot.builds.plans.acts.tbone_attack": "DEBUG",
+            "terranbot.builds.plans.acts.tbone_attack": "DEBUG",
+            # "terranbot.combat.strategic_decision_manager": "DEBUG",
             # "terranbot.combat.maneuvers.gather.main_gather": "DEBUG",
             # "terranbot.builds.plans.acts.zerg_attack_utility": "DEBUG",
             # "terranbot.combat.trees.utility_base_combat": "DEBUG",
             # "terranbot.combat.maneuvers.siege": "DEBUG",
-            "terranbot.builds.plans.acts.zone_defense": "DEBUG",
+            # "terranbot.builds.plans.acts.zone_defense": "DEBUG",
             # "terranbot.managers.terry_combat_manager": "DEBUG",
             # "terranbot.act.t_build_grid": "DEBUG",
             # "terranbot.combat.micro": "DEBUG",
@@ -115,6 +116,7 @@ class LogManager(ManagerBase, ILogManager):
             
             # "terranbot.builds.plans.tactics.terran.addon_swap": "DEBUG",
             # "terranbot.grouping": "DEBUG",
+            "terranbot.combat.squad": "DEBUG",
             # "terranbot.combat.vectors": "DEBUG",
             # "terranbot.combat.maneuvers": "DEBUG",
             # "terranbot.combat.handle_groups": "DEBUG",
@@ -129,6 +131,7 @@ class LogManager(ManagerBase, ILogManager):
             # "terranbot.utilityai.actions": "DEBUG",
             # "terranbot.utilityai.consideration": "DEBUG",
             # "terranbot.utilityai.maps": "DEBUG",            
+            "sharpy.combat.group_combat_manager": "DEBUG",            
         }
         logger.remove()
         logger.add(sys.stderr, level="DEBUG", format=formatter, filter=filtering)
