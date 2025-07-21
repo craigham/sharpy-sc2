@@ -16,6 +16,9 @@ class UnitCount:
         name = self.enemy_type.name
         return name + ": " + str("{0:.1f}".format(self.count))
 
+    def __repr__(self):
+        return self.__str__()
+    
     def to_short_string(self) -> string:
         name = self.enemy_type.name[:3].lower()
         return name + " " + str("{0:.1f}".format(self.count))
