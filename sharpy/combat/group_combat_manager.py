@@ -98,6 +98,7 @@ class GroupCombatManager(ManagerBase, ICombatManager):
         self.default_rules.load_default_micro()
         self.enemy_group_distance = 7
         self.military_action = None
+        self.debug_msg = ""
 
     async def start(self, knowledge: "Knowledge"):
         await super().start(knowledge)
@@ -140,7 +141,9 @@ class GroupCombatManager(ManagerBase, ICombatManager):
             self.all_enemy_power.add_units(group.units)
 
     async def post_update(self):
-        pass
+        if self.debug_msg:
+            self.ai.draw_text_on_screen(self.debug_msg, Point2((0.05, 0.15)), None)
+            self.debug_msg = ""
 
     @property
     def debug(self):
@@ -182,6 +185,7 @@ class GroupCombatManager(ManagerBase, ICombatManager):
         self.rules.handle_groups_func(combat=self, target=target, move_type=move_type)
 
         self._tags.clear()
+        
 
     def faster_group_should_regroup(self, group1: CombatUnits, group2: Optional[CombatUnits]) -> bool:
         if not group2:
