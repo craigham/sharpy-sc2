@@ -1,5 +1,5 @@
 from typing import Set, Optional, Dict
-
+from enum import Enum
 from sc2.data import Race
 from sc2.ids.unit_typeid import UnitTypeId
 from sharpy.general.extended_power import siege
@@ -12,7 +12,7 @@ from sc2.unit import Unit
 from sc2.units import Units
 
 
-class CombatModel:
+class CombatModel(Enum):
     StalkerToRoach = 0  # Longer range vs shorther
     StalkerToSpeedlings = 1  # Ranged vs melee
     StalkerToSiege = 2  # Range vs extreme fire power
