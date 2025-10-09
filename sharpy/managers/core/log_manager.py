@@ -118,7 +118,7 @@ class LogManager(ManagerBase, ILogManager):
             # "terranbot.grouping": "DEBUG",
             # "terranbot.combat.squad": "DEBUG",
             "terranbot.combat.micro.micro_techniques_bio": "DEBUG",
-            "terranbot.combat.micro_techniques": "DEBUG",
+            "terranbot.combat.micro_techniques": "INFO",
             "terranbot.builds.plans.acts.micro_map_control": "DEBUG",
             # "terranbot.combat.vectors": "DEBUG",
             # "terranbot.combat.maneuvers": "DEBUG",
