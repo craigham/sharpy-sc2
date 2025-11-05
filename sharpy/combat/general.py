@@ -78,4 +78,5 @@ class MilitaryAction:
     next_choke:PathChoke|None = field(init=False, default=None)
     bio_positions:dict[int, Point2]|None = field(init=False, default=None)
     expected_engagement_result:"EngagementResult|None" = field(init=False, default=None)
+    approach_angle:float|None = field(init=False, default=None, repr=False)
 
