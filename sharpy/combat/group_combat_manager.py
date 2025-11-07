@@ -98,12 +98,7 @@ class GroupCombatManager(ManagerBase, ICombatManager):
 
     def get_all_units(self) -> Units:        
         return self.cache.by_tags(self._tags)
-
-    def execute_military_action(self, action: MilitaryAction, rules: MicroRules|None = None):
-        self.military_action = action
-        self.execute(action.action_info.target_position, action.move_type, rules)
-        self.military_action = None
-
+    
     def execute(self, target: Point2, move_type=MoveType.Assault, rules: Optional[MicroRules] = None):
         our_units = self.get_all_units()
         if len(our_units) < 1:
