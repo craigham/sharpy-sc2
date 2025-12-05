@@ -6,7 +6,7 @@ from sharpy.plans.acts import ActBase
 from sharpy.managers.core.roles import UnitTask
 from sharpy.general.zone import Zone
 
-from terranbot.managers import BuildDetector
+from terranbot.managers.build_detector import BuildDetector
 from sc2.unit import Unit
 from sc2.units import Units
 

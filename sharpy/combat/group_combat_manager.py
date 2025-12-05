@@ -17,9 +17,6 @@ from sc2.unit import Unit
 import numpy as np
 from sklearn.cluster import DBSCAN
 
-from terranbot.combat.combat_types import EngagementResult
-from terranbot.pathing import PathChoke, PathRamp
-from terranbot import utils
 
 ignored = {UnitTypeId.MULE, UnitTypeId.LARVA, UnitTypeId.EGG}
 
