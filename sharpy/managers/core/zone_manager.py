@@ -177,6 +177,7 @@ class ZoneManager(ManagerBase, IZoneManager):
         height_hash: int = np.sum(knowledge.ai.game_info.terrain_height.data_numpy)
         self.map = recognize_map(self.ai.game_info.map_name, height_hash)
         self.print(f"Map set to: {self.map} from name: {self.ai.game_info.map_name} and hash: {height_hash}.")
+        self.print(f"Map path: {self.ai.game_info.local_map_path.split('.')[0]}", stats=False, log_level=logging.INFO)
         self.init_zones()
         self.set_pathing_zones()
 
