@@ -137,5 +137,22 @@ class LogManager(ManagerBase, ILogManager):
             # "terranbot.utilityai.maps": "DEBUG",            
             # "sharpy.combat.group_combat_manager": "DEBUG",            
         }
+        # Preserve any file sinks (added by LoggingUtility.set_logger_file) before removing
+        file_sinks = []
+        for handler_id, handler in logger._core.handlers.items():
+            sink = handler._sink
+            # FileSink instances have a _path attribute
+            if hasattr(sink, '_path'):
+                file_sinks.append((sink._path, handler._levelno, handler._filter))
+
         logger.remove()
         logger.add(sys.stderr, level="DEBUG", format=formatter, filter=filtering)
+
+        # Merge config-driven log_levels into filtering for file sinks
+        if hasattr(knowledge, 'config') and knowledge.config.has_section('log_levels'):
+            for module, level in knowledge.config.items('log_levels'):
+                filtering[module] = level.upper()
+
+        # Re-add file sinks that were present before (from GameStarter/ladder)
+        for file_path, level, _orig_filter in file_sinks:
+            logger.add(str(file_path), level="DEBUG", format=formatter, filter=filtering)

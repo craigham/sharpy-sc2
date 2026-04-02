@@ -310,27 +310,92 @@ class PlanAddonSwap(ActBase):
             2) Return closest landing position of a busy structure with that addon type
         """
         if addon_type is None:
-            
-            pos = self.building_solver.structure_target_move_location.get(unit.tag, None) or await self.building_solver.position_terran(unit.type_id, count=1, positioning_modifiers=NearUnit(unit))
-            if self.ai.pathing_manager.influence_maps[IMType.ZONES][pos] not in {0}:
-                self.ai.chat_manager.chat_taunt_once("invalid_land_position", lambda: f"Tag:invalid_land_position_{pos}_{self.ai.time:.0f}", team_only=True)
-            return pos
+            pos = self.building_solver.structure_target_move_location.get(unit.tag, None)
+            if pos:
+                logger.debug("AddonSwap using pre-reserved land location: unit={} pos={}", unit.tag, pos)
+                return pos
+
+            zones_map = self.ai.pathing_manager.influence_maps[IMType.ZONES]
+            main_zone_value = zones_map[self.zone_manager.own_main_zone.center_location]
+            unit_zone_value = zones_map[unit.position]
+
+            # Prefer main-zone landing when freeing a structure from its addon.
+            pos = await self.building_solver.position_terran(
+                unit.type_id,
+                count=1,
+                positioning_modifiers=NearUnit(unit, preferred_zone_value=main_zone_value),
+            )
+            if pos is not None:
+                selected_zone_value = zones_map[pos]
+                logger.debug(
+                    "AddonSwap land location chosen: unit={} from_zone={} target_zone={} selected_zone={} pos={}",
+                    unit.tag,
+                    unit_zone_value,
+                    main_zone_value,
+                    selected_zone_value,
+                    pos,
+                )
+                return pos
+
+            logger.warning(
+                "AddonSwap main-zone landing failed, falling back to nearest zone: unit={} from_zone={} target_zone={}",
+                unit.tag,
+                unit_zone_value,
+                main_zone_value,
+            )
+            fallback_pos = await self.building_solver.position_terran(
+                unit.type_id,
+                count=1,
+                positioning_modifiers=NearUnit(unit),
+            )
+            logger.debug("AddonSwap fallback land location: unit={} pos={}", unit.tag, fallback_pos)
+            return fallback_pos
         elif addon_type in {UnitTypeId.TECHLAB, UnitTypeId.REACTOR}:
             free_addon_locations: Set[Point2] = self.free_addon_locations[addon_type]
+            zones_map = self.ai.pathing_manager.influence_maps[IMType.ZONES]
+            main_zone_value = zones_map[self.zone_manager.own_main_zone.center_location]
+
+            def closest_prefer_main(locations: List[Point2]) -> Point2 | None:
+                if not locations:
+                    return None
+                main_locations = [location for location in locations if zones_map[location] == main_zone_value]
+                if main_locations:
+                    selected_main = unit.position.closest(main_locations)
+                    logger.debug(
+                        "AddonSwap addon-target(main): unit={} addon_type={} selected={} main_zone={}",
+                        unit.tag,
+                        addon_type,
+                        selected_main,
+                        main_zone_value,
+                    )
+                    return selected_main
+                selected_fallback = unit.position.closest(locations)
+                logger.warning(
+                    "AddonSwap addon-target(non-main fallback): unit={} addon_type={} selected={} selected_zone={} main_zone={}",
+                    unit.tag,
+                    addon_type,
+                    selected_fallback,
+                    zones_map[selected_fallback],
+                    main_zone_value,
+                )
+                return selected_fallback
+
             # Prefer locations that have no production structure or idle structures
             locations_without_structures: List[Point2] = [
                 location for location in free_addon_locations if location not in self.structures_at_positions
             ]
-            if locations_without_structures:
-                return unit.position.closest(locations_without_structures)
+            selected_location = closest_prefer_main(locations_without_structures)
+            if selected_location:
+                return selected_location
 
             locations_with_idle_structures: List[Point2] = [
                 location
                 for location in free_addon_locations
                 if location in self.structures_at_positions and self.structures_at_positions[location].is_idle
             ]
-            if locations_with_idle_structures:
-                return unit.position.closest(locations_with_idle_structures)
+            selected_location = closest_prefer_main(locations_with_idle_structures)
+            if selected_location:
+                return selected_location
 
             # If none above could be found, try to get an addon from a structure that is currently busy (e.g. producing a unit)
             locations_with_structures: List[Point2] = [
@@ -338,8 +403,9 @@ class PlanAddonSwap(ActBase):
                 for location in free_addon_locations
                 if location in self.structures_at_positions and not self.structures_at_positions[location].is_idle
             ]
-            if locations_with_structures:
-                return unit.position.closest(locations_with_structures)
+            selected_location = closest_prefer_main(locations_with_structures)
+            if selected_location:
+                return selected_location
 
     def has_addon(self, unit: Unit, addon_type: UnitTypeId):
         """ Checks if a unit (specifically: its tag) has the specific addon type or is planned to have the specific addon type. """
@@ -429,7 +495,7 @@ class ExecuteAddonSwap(ActBase):
                 logger.warning(f"structure below: {self.ai.structures.tags_not_in({unit.tag}).closer_than(2,land_location)} - {land_location=} - {unit=}")
                 await self.ai.chat_manager.chat_taunt_once("addon_land_blocked", lambda: f"Tag:addon_land_blocked_{self.ai.time:.0f}", team_only=True)
                 self.ai.client.debug_sphere_out(Point3((*land_location, self.knowledge.get_z(land_location))), 2.5, color=Point3((145, 100, 0)))
-                new_land_location = await self.building_solver.position_terran(unit.type_id, count=1, positioning_modifiers=NearUnit(unit))
+                new_land_location = await self.find_land_location_with_addon(unit, addon_type=None)
             #     self.print(f"Something blocking landing location for {unit}, finding new land location")
                 self.building_solver.structure_target_move_location[unit.tag] = new_land_location
             #     self.print(f"Old land location: {land_location}, new land location: {new_land_location}")

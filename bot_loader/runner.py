@@ -1,23 +1,42 @@
+import asyncio
+import socket
 import subprocess
 import tempfile
 import time
-from typing import List, Any, Optional
+from typing import Any
 
-import portpicker
 from aiohttp.web_ws import WebSocketResponse
+
+# noinspection PyProtectedMember
+from sc2.main import _host_game, run_game
+from sc2.paths import Paths
+from sc2.player import AbstractPlayer
+from sc2.portconfig import Portconfig
 
 from bot_loader.killable_process import KillableProcess
 from bot_loader.ladder_bot import BotLadder
 from bot_loader.port_picker import pick_contiguous_unused_ports, return_ports
-from sc2.main import run_game
 
-# noinspection PyProtectedMember
-from sc2.main import _host_game
-from sc2.paths import Paths
-from sc2.player import AbstractPlayer
-import asyncio
 
-from sc2.portconfig import Portconfig
+def wait_for_tcp_listen(
+    host: str,
+    port: int,
+    timeout_sec: float = 120.0,
+    poll_interval: float = 0.2,
+) -> None:
+    """Block until a process accepts TCP connections on host:port (SC2 ``-listen``)."""
+    deadline = time.monotonic() + timeout_sec
+    last_err: OSError | None = None
+    while time.monotonic() < deadline:
+        try:
+            with socket.create_connection((host, port), timeout=2.0):
+                return
+        except OSError as e:
+            last_err = e
+            time.sleep(poll_interval)
+    raise TimeoutError(
+        f"Timed out after {timeout_sec}s waiting for a listener on {host}:{port}. Last error: {last_err!r}"
+    )
 
 
 class MatchRunner:
@@ -26,12 +45,12 @@ class MatchRunner:
         self.process = None
         self.to_close = set()
 
-        self.ws_c2p: Optional[WebSocketResponse] = None
+        self.ws_c2p: WebSocketResponse | None = None
 
         super().__init__()
 
     def run_game(
-        self, map_settings: str, players: List[AbstractPlayer], player1_id: str, start_port: Optional[str], **kwargs
+        self, map_settings: str, players: list[AbstractPlayer], player1_id: str, start_port: str | None, **kwargs
     ):
         if isinstance(players[0], BotLadder):
             raise Exception("Player 1 cannot be a ladder bot!")
@@ -82,7 +101,9 @@ class MatchRunner:
         port = self.ladder_player2_port
         self.print(f"Staring client server with port {port}")
         KillableProcess(await self._launch("127.0.0.1", port, False))
-        time.sleep(5)
+        self.print(f"Waiting for SC2 to accept connections on 127.0.0.1:{port}...")
+        wait_for_tcp_listen("127.0.0.1", int(port))
+        self.print("SC2 client is ready; starting ladder bot process.")
         KillableProcess(await ladder_bot.join_game(opponent_id, portconfig=portconfig))
 
         # We'll have to host handle the rest
