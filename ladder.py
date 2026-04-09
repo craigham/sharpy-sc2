@@ -115,20 +115,21 @@ def stand_alone_game(bot):
     Play a game against the ladder build or test the bot against ingame ai
     """
     print("Starting local game...")
-    print("Play as human? (y / n)")
-    input_human = input(">> ")
+    # print("Play as human? (y / n)")
+    input_human = 'n' #input(">> ")
     maps = [
         # SC2AiArena 2021 season 2
-        "2000AtmospheresAIE",
+        "PersephoneAIE_v4",
         # "BeckettIndustriesAIE",
-        "BlackburnAIE",
-        "JagannathaAIE",
-        "LightshadeAIE",
-        "OxideAIE",
-        "RomanticideAIE",
+        # "BlackburnAIE",
+        # "JagannathaAIE",
+        # "LightshadeAIE",
+        # "OxideAIE",
+        # "RomanticideAIE",
     ]
 
-    map_name = random.choice(maps)
+    map_name = os.environ.get('MAP_NAME',random.choice(maps))
+    print("Map name: ", map_name)
 
     folder = os.path.join("data", "games")
 
