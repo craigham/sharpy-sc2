@@ -3,9 +3,6 @@ from typing import Dict, List, Tuple, Union
 
 import numpy as np
 from math import floor
-import json
-import time
-import traceback
 
 from sc2.data import Race
 from sc2.game_info import GameInfo
@@ -22,24 +19,6 @@ from .manager_base import ManagerBase
 from sharpy.managers.core.unit_value import buildings_2x2, buildings_3x3, buildings_5x5
 from sharpy.sc2math import point_normalize
 from terranbot.maps import IMType
-from terranbot.colors import Color
-
-_DEBUG_LOG_PATH = "/Users/craigh/dev/starcraft/tbone/.cursor/debug-665dec.log"
-_DEBUG_SESSION_ID = "665dec"
-
-
-def _emit_debug_ndjson(*, run_id: str, hypothesis_id: str, location: str, message: str, data: Dict[str, object]) -> None:
-    entry = {
-        "sessionId": _DEBUG_SESSION_ID,
-        "runId": run_id,
-        "hypothesisId": hypothesis_id,
-        "location": location,
-        "message": message,
-        "data": data,
-        "timestamp": int(time.time() * 1000),
-    }
-    with open(_DEBUG_LOG_PATH, "a", encoding="utf-8") as debug_log:
-        debug_log.write(json.dumps(entry, sort_keys=True) + "\n")
 
 class PathingManager(ManagerBase):
     map: Sc2Map
@@ -332,28 +311,6 @@ class PathingManager(ManagerBase):
         if len(path) < 1:
             logger.warning(f"No path found {start}, {target}")
             logger.warning(f"Pathing start: {self.influence_maps[IMType.GroundPathing][start]} , Pathing target: {self.influence_maps[IMType.GroundPathing][target]}")
-            # #region agent log
-            stack_tail = traceback.extract_stack(limit=10)[:-1]
-            _emit_debug_ndjson(
-                run_id="pre-fix",
-                hypothesis_id="H3_H5",
-                location="sharpy/managers/core/pathing_manager.py:find_influence_ground_path",
-                message="no_path_found_probe",
-                data={
-                    "map_type": str(map_type),
-                    "target_index": target_index,
-                    "start": repr(start),
-                    "target": repr(target),
-                    "start_cell": repr(start.rounded),
-                    "target_cell": repr(target.rounded),
-                    "start_walkable": bool(self.ai.in_pathing_grid(start)),
-                    "target_walkable": bool(self.ai.in_pathing_grid(target)),
-                    "stack_tail": [f"{frame.filename}:{frame.lineno}:{frame.name}" for frame in stack_tail[-6:]],
-                },
-            )
-            # #endregion
-            self.ai.draw_sphere_at_point2(start, radius=1, color=Color.RED, text=f"Start")
-            self.ai.draw_sphere_at_point2(target, radius=1, color=Color.BLUE, text=f"Target")
             # if self.knowledge.debug:
             #     raise ValueError(f"No path found {start}, {target} - {map_type=}")
             return target
