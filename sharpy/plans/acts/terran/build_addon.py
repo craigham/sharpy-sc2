@@ -57,7 +57,7 @@ class BuildAddon(ActBase):
                     builder.build(self.unit_type)
                     break
                 else:
-                    self.print("no space")
+                    self.print(f"no space for: {builder}")
         return False
 
     def get_quick_count(self, unit_type: UnitTypeId) -> int:
