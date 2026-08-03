@@ -19,6 +19,33 @@ LOG_LEVEL_MAP = {
     logging.CRITICAL: "CRITICAL"
 }
 
+
+def default_log_filtering() -> dict[str, str]:
+    """Baseline per-module loguru levels before config merge."""
+    return {
+        "": "INFO",
+        "terranbot": "INFO",
+    }
+
+
+def merge_config_log_levels(filtering: dict[str, str], config: ConfigParser) -> dict[str, str]:
+    """Apply ``[log_levels]`` overrides; config-local.ini wins when merged upstream."""
+    if not config.has_section("log_levels"):
+        return filtering
+    merged = dict(filtering)
+    for module, level in config.items("log_levels"):
+        merged[module] = level.upper()
+    return merged
+
+
+def build_log_filtering(knowledge) -> dict[str, str]:
+    """Build the per-module filter dict used by all loguru sinks."""
+    filtering = default_log_filtering()
+    if hasattr(knowledge, "config") and knowledge.config is not None:
+        filtering = merge_config_log_levels(filtering, knowledge.config)
+    return filtering
+
+
 class LogManager(ManagerBase, ILogManager):
     config: ConfigParser
     logger: Any  # TODO: type?
@@ -89,54 +116,8 @@ class LogManager(ManagerBase, ILogManager):
             return "".join(message)
         
         # fmt = "{self.ai.time_formatted.rjust(5)} {str(last_step_time).rjust(4)}ms  {name} - {message}"
-        filtering = {
-            "": "INFO",  # Default.          
-            "terranbot": "INFO",              
-            # "terranbot.managers.enemy_army_tracker": "DEBUG",
-            # "terranbot.builds.plans.acts.tbone_attack": "DEBUG",
-            # "terranbot.combat.strategic_decision_manager": "DEBUG",
-            # "terranbot.combat.maneuvers.gather.main_gather": "DEBUG",
-            # "terranbot.builds.plans.acts.zerg_attack_utility": "DEBUG",
-            # "terranbot.combat.trees.utility_base_combat": "DEBUG",
-            # "terranbot.combat.maneuvers.siege": "DEBUG",
-            # "terranbot.builds.plans.acts.zone_defense": "DEBUG",
-            # "terranbot.managers.terry_combat_manager": "DEBUG",
-            # "terranbot.act.t_build_grid": "DEBUG",
-            # "terranbot.combat.micro": "DEBUG",
-            # "terranbot.managers.build_detector": "DEBUG",            
-            # "terranbot.managers.pathing_manager": "DEBUG",
-            # "terranbot.managers.t_building_solver": "DEBUG",
-            # "terranbot.managers.map_analysis_manager": "DEBUG",
-            # "terranbot.builds": "DEBUG",
-            # "sharpy.plans.acts.expand": "DEBUG",
-            # "terranbot.builds.plans.acts": "DEBUG",
-            # "terranbot.activity.t_build_grid": "DEBUG",
-            # "terranbot.builds.plans.acts.dict_unit_spawner": "DEBUG",
-            # "terranbot.builds.plans.acts.zone_gather": "DEBUG",
-            
-            # "terranbot.builds.plans.tactics.terran.addon_swap": "DEBUG",
-            # "terranbot.grouping": "DEBUG",
-            # "terranbot.combat.squad": "DEBUG",
-            # "terranbot.combat.micro.micro_techniques_bio": "DEBUG",
-            "terranbot.combat.micro_techniques": "INFO",
-            # "terranbot.builds.plans.acts.micro_map_control": "DEBUG",
-            # "terranbot.combat.tactics": "DEBUG",
-            # "terranbot.combat.vectors": "DEBUG",
-            # "terranbot.combat.maneuvers": "DEBUG",
-            # "terranbot.combat.handle_groups": "DEBUG",
-            # "terranbot.trees.behaviours.gather": "DEBUG",
-            # "terranbot.activity": "DEBUG",
-            # "terranbot.actions": "DEBUG",            
-            # "terranbot.trees": "DEBUG",
-            # "terranbot.combat.trees": "DEBUG",
-            # "terranbot.combat.trees.medivacs": "DEBUG",
-            # "terranbot.combat.micro.utility": "DEBUG",
-            # "terranbot.utilityai": "DEBUG",
-            # "terranbot.utilityai.actions": "DEBUG",
-            # "terranbot.utilityai.consideration": "DEBUG",
-            # "terranbot.utilityai.maps": "DEBUG",            
-            # "sharpy.combat.group_combat_manager": "DEBUG",            
-        }
+        filtering = build_log_filtering(knowledge)
+
         # Preserve any file sinks (added by LoggingUtility.set_logger_file) before removing
         file_sinks = []
         for handler_id, handler in logger._core.handlers.items():
@@ -147,11 +128,6 @@ class LogManager(ManagerBase, ILogManager):
 
         logger.remove()
         logger.add(sys.stderr, level="DEBUG", format=formatter, filter=filtering)
-
-        # Merge config-driven log_levels into filtering for file sinks
-        if hasattr(knowledge, 'config') and knowledge.config.has_section('log_levels'):
-            for module, level in knowledge.config.items('log_levels'):
-                filtering[module] = level.upper()
 
         # Re-add file sinks that were present before (from GameStarter/ladder)
         for file_path, level, _orig_filter in file_sinks:
