@@ -129,6 +129,12 @@ class LogManager(ManagerBase, ILogManager):
         logger.remove()
         logger.add(sys.stderr, level="DEBUG", format=formatter, filter=filtering)
 
-        # Re-add file sinks that were present before (from GameStarter/ladder)
+        # Re-add file sinks that were present before (from GameStarter/ladder).
+        # LoggingUtility registers separate sharpy/terranbot filters on the same path — keep one.
+        seen_file_paths: set[str] = set()
         for file_path, level, _orig_filter in file_sinks:
-            logger.add(str(file_path), level="DEBUG", format=formatter, filter=filtering)
+            path_str = str(file_path)
+            if path_str in seen_file_paths:
+                continue
+            seen_file_paths.add(path_str)
+            logger.add(path_str, level="DEBUG", format=formatter, filter=filtering)
