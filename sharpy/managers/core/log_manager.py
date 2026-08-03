@@ -46,6 +46,16 @@ def build_log_filtering(knowledge) -> dict[str, str]:
     return filtering
 
 
+def _escape_loguru_format_message(message: str) -> str:
+    """Escape braces for loguru dynamic formatters (callable ``format=``).
+
+    Loguru treats the string returned by a callable formatter as a format
+    template. Dict reprs and other user content often contain ``{...}`` which
+    would otherwise raise ``KeyError`` during ``format_map``.
+    """
+    return message.replace("{", "{{").replace("}", "}}")
+
+
 class LogManager(ManagerBase, ILogManager):
     config: ConfigParser
     logger: Any  # TODO: type?
@@ -109,10 +119,11 @@ class LogManager(ManagerBase, ILogManager):
     def setup_loguru(self, knowledge):
         def formatter(record):
             last_step_time = round(self.ai.step_time[3])
+            safe_message = _escape_loguru_format_message(record["message"])
             message = (f"{knowledge.ai.time_formatted.rjust(5)} {str(knowledge.ai.state.game_loop).rjust(4)} {str(last_step_time).rjust(4)}ms  ",
                        f"{str(knowledge.ai.minerals).rjust(4)}M {str(knowledge.ai.vespene).rjust(4)}G ",
                        f"{str(knowledge.ai.supply_used).rjust(3)}/{str(knowledge.ai.supply_cap).rjust(3)}U ",
-                       f"{record['level']} {record['name']}:{record['line']} {record['message']}\n")
+                       f"{record['level']} {record['name']}:{record['line']} {safe_message}\n")
             return "".join(message)
         
         # fmt = "{self.ai.time_formatted.rjust(5)} {str(last_step_time).rjust(4)}ms  {name} - {message}"
